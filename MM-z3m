@@ -2,8 +2,8 @@
 loadstring(game:HttpGet(("https://raw.githubusercontent.com/REDzHUB/LibraryV2/main/redzLib")))()
 MakeWindow({
   Hub = {
-    Title = "MM2 V1",
-    Animation = "XHUB_رويدا"
+    Title = "By |z3m V1",
+    Animation = "Z3M v1"
   },
   Key = {
     KeySystem = false,
