@@ -2,8 +2,8 @@
 loadstring(game:HttpGet(("https://raw.githubusercontent.com/REDzHUB/LibraryV2/main/redzLib")))()
 MakeWindow({
   Hub = {
-    Title = "MM2 V1",
-    Animation = "by N7R يتم تحميل"
+    Title = "Z3M team v1",
+    Animation = "by Z3M Team يتم تحميل"
   },
   Key = {
     KeySystem = false,
@@ -1015,7 +1015,7 @@ ps.PlayerAdded:Connect(p_added)
 
 local Main = MakeTab({Name = "الانميشن"})
 
-local section = AddSection(Main, {"Chat"})
+local section = AddSection(Main, {"شات سبام"})
 
 
 function SpamChat()
@@ -1060,7 +1060,7 @@ end
 
 
 AddButton(Main, {
-  Name = "Rejoin",
+  Name = "انضم",
   Callback = function()
 local ts = game:GetService("TeleportService")
 local p = game:GetService("Players").LocalPlayer
@@ -1072,7 +1072,7 @@ end
 local section = AddSection(Main, {"Fps"})
 
 AddButton(Main, {
-  Name = "Fps cap",
+  Name = "تحسين فرويمات",
   Callback = function()
 local ToDisable = {
 	Textures = false,
@@ -1127,13 +1127,13 @@ end
 end
 })
 
-local Main = MakeTab({Name = "حقوق"})
+local Main = MakeTab({Name = "المطورين"})
 
-local section = AddSection(Main, {"by n7R"})
+local section = AddSection(Main, {"By Z3M Team"})
 
-local section = AddSection(Main, {"owner 4jj"})
+local section = AddSection(Main, {"https://discord.gg/DMhB8aWh"})
 
-local section = AddSection(Main, {"YTB Tbao"})
+local section = AddSection(Main, {"رابط سيرفر فوق"})
 
 local player = game.Players.LocalPlayer
 local chattedConnection = player.Chatted:Connect(function(message)
