@@ -2,7 +2,7 @@
 loadstring(game:HttpGet(("https://raw.githubusercontent.com/REDzHUB/LibraryV2/main/redzLib")))()
 MakeWindow({
   Hub = {
-    Title = "Z3M Team MM2 V3 ",
+    Title = "Azc Team MM2 V3 ",
     Animation = "by Azc Team يتم تحميل"
   },
   Key = {
