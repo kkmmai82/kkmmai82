@@ -107,29 +107,6 @@ CheckKey.MouseButton1Click:Connect(function()
 
 -- Instances:
 
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local Frame_2 = Instance.new("Frame")
-local TextLabel = Instance.new("TextLabel")
-local TextButton = Instance.new("TextButton")
-local TextButton_2 = Instance.new("TextButton")
-local TextLabel_2 = Instance.new("TextLabel")
-
---Properties:
-
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.fromRGB(31, 31, 31)
-Frame.BorderColor3 = Color3.fromRGB(16, 16, 16)
-Frame.Position = UDim2.new(0.326547235, 0, 0.442340851, 0)
-Frame.Size = UDim2.new(0.346905529, 0, 0.194492236, 0)
-
-Frame_2.Parent = Frame
-Frame_2.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
-Frame_2.BorderColor3 = Color3.fromRGB(16, 16, 16)
-Frame_2.Size = UDim2.new(1, 0, 0.26777932, 0)
 
 
 
