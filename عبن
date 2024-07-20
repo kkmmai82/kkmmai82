@@ -116,35 +116,7 @@ CheckKey.MouseButton1Click:Connect(function()
 
 -- Scripts:
 
-			local ePos, vissss = workspace.CurrentCamera:WorldToViewportPoint(v.Character[trg_part].Position)
-					local AccPos = Vector2.new(ePos.x, ePos.y)
-					local mousePos = Vector2.new(workspace.CurrentCamera.ViewportSize.x / 2, workspace.CurrentCamera.ViewportSize.y / 2)
-					local distance = (AccPos - mousePos).magnitude
-					if distance < last and vissss and hotkey and distance < 400 then
-						last = distance
-						nearest = v
-					end
-				end
-			end
-		end
-		return nearest
-	end
-	
-	game:GetService("RunService").RenderStepped:Connect(function()
-		local closest = getClosestPlayerToCursor("Head")
-		if state and closest and closest.Character:FindFirstChild("Head") then
-			lookAt(Cam.CFrame.p, closest.Character:FindFirstChild("Head").Position)
-		end
-	end)
-end
-coroutine.wrap(CIXXD_fake_script)()
-local function QNWNII_fake_script() -- Frame.LocalScript 
-	local script = Instance.new('LocalScript', Frame)
-
-	script.Parent.Active = true
-	script.Parent.Selectable = true
-	script.Parent.Draggable = true
-end
+			
 coroutine.wrap(QNWNII_fake_script)()
 
     else
