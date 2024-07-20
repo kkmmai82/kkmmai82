@@ -101,21 +101,6 @@ CheckKey.MouseButton1Click:Connect(function()
         wait(1)
         ScreenGui:Destroy()
 
--- Put Your Script Here
--- Gui to Lua
--- Version: 3.2
-
--- Instances:
-
-
-
-
-
-
-
-
-
--- Scripts:
 
 loadstring(game:HttpGet(("https://raw.githubusercontent.com/REDzHUB/LibraryV2/main/redzLib")))()
 MakeWindow({
