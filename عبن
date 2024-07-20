@@ -30,7 +30,7 @@ end)
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 30)
 Title.Position = UDim2.new(0, 0, 0.05, 0)
-Title.Text = "كوكو سستم"
+Title.Text = "Azc Team"
 Title.TextSize = 18
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.BackgroundTransparency = 1
@@ -39,7 +39,7 @@ Title.Parent = Frame
 local Instructions = Instance.new("TextLabel")
 Instructions.Size = UDim2.new(1, 0, 0, 30)
 Instructions.Position = UDim2.new(0, 0, 0.2, 0)
-Instructions.Text = "حط مفتاح يامطي"
+Instructions.Text = "المفتاح "
 Instructions.TextSize = 13
 Instructions.TextColor3 = Color3.fromRGB(150, 150, 150)
 Instructions.BackgroundTransparency = 1
@@ -49,7 +49,7 @@ local TextBox = Instance.new("TextBox")
 TextBox.Size = UDim2.new(0.8, 0, 0.2, 0)
 TextBox.Position = UDim2.new(0.1, 0, 0.4, 0)
 TextBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-TextBox.PlaceholderText = "اضغط هنا اشبك خايف"
+TextBox.PlaceholderText = "اضغط هنا "
 TextBox.Text = ""
 TextBox.TextSize = 18
 TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -86,17 +86,17 @@ CheckKeyCorner.CornerRadius = UDim.new(0, 5)
 CheckKeyCorner.Parent = CheckKey
 
 GetKey.MouseButton1Click:Connect(function()
-   setclipboard("يدتك تسوي يوقى")
+   setclipboard("Azc 3mk")
 end)
 
 local function validateKey(key)
-    return key == "يدتك تسوي يوقى" -- Replace this with your key
+    return key == "Azc 3mk" -- Replace this with your key
 end
 
 CheckKey.MouseButton1Click:Connect(function()
     local enteredKey = TextBox.Text
     if validateKey(enteredKey) then
-        TextBox.PlaceholderText = "ايوه ضبط"
+        TextBox.PlaceholderText = "يتم التحميل"
         TextBox.Text = ""
         wait(1)
         ScreenGui:Destroy()
