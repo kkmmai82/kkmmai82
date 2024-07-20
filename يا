@@ -29,6 +29,8 @@ MinimizeButton({
   Stroke = false,
   StrokeColor = Color3.fromRGB(255, 0, 0)
 })
+
+local Main = MakeTab({Name = "المميزات"})
 SectionList.Parent = Background
 SectionList.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 SectionList.BackgroundTransparency = 0.500
@@ -36,7 +38,6 @@ SectionList.BorderColor3 = Color3.fromRGB(0, 0, 0)
 SectionList.BorderSizePixel = 0
 SectionList.Position = UDim2.new(0, 0, 0, 30)
 SectionList.Size = UDim2.new(0, 105, 0, 320)
-local Main = MakeTab({Name = "المميزات"})
 
 local section = AddSection(Main, {"طرد"})
 
