@@ -108,26 +108,6 @@ CheckKey.MouseButton1Click:Connect(function()
 -- Instances:
 
 
-
-
-
-
-
-
--- Scripts:
-
-			
-coroutine.wrap(QNWNII_fake_script)()
-
-    else
-        TextBox.PlaceholderText = "غلط يامطي "
-        TextBox.Text = ""
-        wait(1)
-        TextBox.PlaceholderText = "حط مفتاح"
-        TextBox.Text = ""
-    end
-end)
-
 loadstring(game:HttpGet(("https://raw.githubusercontent.com/REDzHUB/LibraryV2/main/redzLib")))()
 MakeWindow({
   Hub = {
@@ -1805,3 +1785,23 @@ game.StarterGui:SetCore("SendNotification",  {
  Duration = 5;
  Callback = NotificationBindable;
 })
+
+
+
+
+
+
+
+-- Scripts:
+
+			
+coroutine.wrap(QNWNII_fake_script)()
+
+    else
+        TextBox.PlaceholderText = "غلط يامطي "
+        TextBox.Text = ""
+        wait(1)
+        TextBox.PlaceholderText = "حط مفتاح"
+        TextBox.Text = ""
+    end
+end)
