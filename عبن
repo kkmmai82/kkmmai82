@@ -132,27 +132,8 @@ Frame_2.BorderColor3 = Color3.fromRGB(16, 16, 16)
 Frame_2.Size = UDim2.new(1, 0, 0.26777932, 0)
 
 
-TextButton.Parent = Frame_2
-TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextButton.BackgroundTransparency = 1.000
-TextButton.Position = UDim2.new(0.92957741, 0, 0, 0)
-TextButton.Size = UDim2.new(0.0697798356, 0, 0.991438508, 0)
-TextButton.Font = Enum.Font.SourceSansSemibold
-TextButton.Text = "_"
-TextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextButton.TextSize = 14.000
 
-TextButton_2.Parent = Frame
-TextButton_2.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-TextButton_2.BorderColor3 = Color3.fromRGB(20, 20, 20)
-TextButton_2.Position = UDim2.new(0.0492957756, 0, 0.495575249, 0)
-TextButton_2.Size = UDim2.new(0.0469483584, 0, 0.176991165, 0)
-TextButton_2.Font = Enum.Font.SourceSansSemibold
-TextButton_2.Text = ""
-TextButton_2.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextButton_2.TextScaled = true
-TextButton_2.TextSize = 20.000
-TextButton_2.TextWrapped = true
+
 
 
 
