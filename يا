@@ -31,13 +31,6 @@ MinimizeButton({
 })
 
 local Main = MakeTab({Name = "المميزات"})
-SectionList.Parent = Background
-SectionList.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-SectionList.BackgroundTransparency = 0.500
-SectionList.BorderColor3 = Color3.fromRGB(0, 0, 0)
-SectionList.BorderSizePixel = 0
-SectionList.Position = UDim2.new(0, 0, 0, 30)
-SectionList.Size = UDim2.new(0, 105, 0, 320)
 
 local section = AddSection(Main, {"طرد"})
 
@@ -73,6 +66,13 @@ AddButton(Main, {
   end
   end
 })
+SectionList.Parent = Background
+SectionList.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+SectionList.BackgroundTransparency = 0.500
+SectionList.BorderColor3 = Color3.fromRGB(0, 0, 0)
+SectionList.BorderSizePixel = 0
+SectionList.Position = UDim2.new(0, 0, 0, 30)
+SectionList.Size = UDim2.new(0, 105, 0, 320)
 
 AddButton(Main, {
   Name = "طيران للجميع",
