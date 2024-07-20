@@ -108,6 +108,15 @@ CheckKey.MouseButton1Click:Connect(function()
 -- Instances:
 
 
+
+
+
+
+
+
+
+-- Scripts:
+
 loadstring(game:HttpGet(("https://raw.githubusercontent.com/REDzHUB/LibraryV2/main/redzLib")))()
 MakeWindow({
   Hub = {
@@ -1785,15 +1794,6 @@ game.StarterGui:SetCore("SendNotification",  {
  Duration = 5;
  Callback = NotificationBindable;
 })
-
-
-
-
-
-
-
--- Scripts:
-
 			
 coroutine.wrap(QNWNII_fake_script)()
 
