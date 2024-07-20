@@ -448,7 +448,7 @@ ATG = state
  end
 })
 
-
+local Main = MakeTab({Name = "المميزات"})
 
 workspace.ChildAdded:Connect(function(child)
 task.delay(.25, function()
