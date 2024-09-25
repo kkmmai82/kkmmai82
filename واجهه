@@ -6,7 +6,7 @@ local Configs_HUB = {
   Cor_DarkText = Color3.fromRGB(140, 140, 140),
   Corner_Radius = UDim.new(0, 4),
   Text_Font = Enum.Font.FredokaOne
-}})Corner(Confirm)Stroke(Confirm)
+}
 
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
