@@ -1,5 +1,5 @@
 
-loadstring(game:HttpGet(("https://raw.githubusercontent.com/kkmmai82/kkmmai82/refs/heads/main/واجهه")))()
+loadstring(game:HttpGet(("https://raw.githubusercontent.com/kkmmai82/kkmmai82/refs/heads/main/و")))()
 MakeWindow({
   Hub = {
     Title = "Azc Team MM2 V3 ",
