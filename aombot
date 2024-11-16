@@ -1,4 +1,3 @@
-MinimizeButton({
   Image = "",
   Size = {50, 50},
   Color = Color3.fromRGB(10, 10, 10),
