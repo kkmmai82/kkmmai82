@@ -80,14 +80,33 @@
         .visual-table th { background: #334155; color: #fbbf24; padding: 4px 8px; text-align: left; }
         .visual-table td { background: #0f172a; padding: 4px 8px; border-top: 1px solid #334155; }
         .visual-empty { color: #475569; text-align: center; padding: 20px; font-size: 12px; }
-    </style>
+    
+        .decrypt-btn { background: #a855f7; color: white; border: none; padding: 7px 16px; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; margin-right: 8px; }
+        .decrypt-btn:hover { background: #9333ea; transform: translateY(-1px); }
+        .decrypt-panel { flex: 1; display: flex; flex-direction: column; background: #0f172a; border-left: 1px solid #334155; min-width: 0; }
+        .decrypt-content { flex: 1; padding: 10px; overflow-y: auto; }
+        .decrypt-result { background: #1e293b; border: 1px solid #475569; border-radius: 8px; padding: 10px; font-family: 'Fira Code', monospace; font-size: 11px; line-height: 1.6; color: #e2e8f0; white-space: pre-wrap; word-break: break-all; max-height: 300px; overflow-y: auto; }
+        .copy-btn { background: #0ea5e9; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-family: 'Cairo', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s; margin-top: 8px; }
+        .copy-btn:hover { background: #0284c7; }
+        .copy-btn.copied { background: #22c55e; }
+        .decrypt-status { padding: 6px 10px; border-radius: 6px; font-size: 11px; margin-bottom: 8px; }
+        .decrypt-status.success { background: #064e3b; color: #22c55e; border: 1px solid #22c55e; }
+        .decrypt-status.error { background: #450a0a; color: #ef4444; border: 1px solid #ef4444; }
+        .decrypt-status.info { background: #1e3a5f; color: #38bdf8; border: 1px solid #38bdf8; }
+        .tabs { display: flex; background: #1e293b; border-bottom: 1px solid #334155; }
+        .tab { padding: 8px 16px; font-size: 11px; cursor: pointer; color: #94a3b8; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab:hover { color: #e2e8f0; }
+        .tab.active { color: #fbbf24; border-bottom-color: #fbbf24; }
+        .tab-content { display: none; flex: 1; flex-direction: column; }
+        .tab-content.active { display: flex; }
+</style>
 <base target="_blank">
 </head>
 <body>
     <div class="container">
         <div class="sidebar">
             <h1>🌙 Lua</h1>
-            <div class="subtitle">المحرر التفاعلي لتعلم Lua</div>
+            <div class="subtitle">المحرر التفاعلي + فك التشفير</div>
             <div class="lesson-section" data-section="control">
                 <h3>🔀 التحكم <span class="arrow">▼</span></h3>
                 <ul class="lesson-list">
@@ -110,7 +129,7 @@
         <div class="main-content">
             <div class="lesson-content" id="lessonContent">
                 <h3>👋 أهلاً بك في محرر Lua التفاعلي!</h3>
-                <p>اختر درس من الشريط الجانبي لتبدأ التعلم. اكتب كود Lua في المحرر واضغط ▶️ تشغيل لتشغيله.</p>
+                <p>اكتب كود Lua في المحرر واضغط ▶️ تشغيل. أو اضغط 🔓 فك التشفير لو عندك سكربت مشفر.</p>
                 <div class="examples">
                     <button class="example-btn" onclick="loadExample('hello')">👋 Hello World</button>
                     <button class="example-btn" onclick="loadExample('variables')">📦 متغيرات</button>
@@ -126,6 +145,7 @@
                 <h2 id="currentLesson">محرر Lua التفاعلي</h2>
                 <div>
                     <button class="clear-btn" onclick="clearOutput()">🗑️ مسح</button>
+                    <button class="decrypt-btn" onclick="decryptCode()"><span>🔓</span> فك التشفير</button>
                     <button class="run-btn" onclick="runCode()"><span>▶️</span> تشغيل</button>
                 </div>
             </div>
@@ -139,16 +159,26 @@ print("Hello, World!")
 print("مرحباً بك في Lua!")</textarea>
                 </div>
                 <div class="output-panel">
-                    <div class="panel-header"><span class="dot orange"></span>النتائج (Output)</div>
-                    <div class="output-content" id="output">
-                        <div class="output-line info">🚀 جاهز لتشغيل الكود...</div>
-                        <div class="output-line info">─────────────────────────</div>
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('output')">📤 النتائج</div>
+                        <div class="tab" onclick="switchTab('visual')">🔍 تصور</div>
+                        <div class="tab" onclick="switchTab('decrypt')">🔓 فك التشفير</div>
                     </div>
-                </div>
-                <div class="visual-panel">
-                    <div class="panel-header"><span class="dot purple"></span>🔍 تصور السكربت</div>
-                    <div class="visual-content" id="visualOutput">
-                        <div class="visual-empty">🎨 اضغط "تشغيل" لرؤية تصور السكربت</div>
+                    <div class="tab-content active" id="tab-output">
+                        <div class="output-content" id="output">
+                            <div class="output-line info">🚀 جاهز لتشغيل الكود...</div>
+                            <div class="output-line info">─────────────────────────</div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="tab-visual">
+                        <div class="visual-content" id="visualOutput">
+                            <div class="visual-empty">🎨 اضغط "تشغيل" لرؤية تصور السكربت</div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="tab-decrypt">
+                        <div class="decrypt-content" id="decryptOutput">
+                            <div class="visual-empty">🔓 اضغط "فك التشفير" لفك سكربت مشفر</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -439,6 +469,179 @@ print("Year: " .. y .. ", Month: " .. m .. ", Day: " .. d)`
 };
 
 const codeEditor = document.getElementById('codeEditor');
+const decryptOutput = document.getElementById('decryptOutput');
+
+// Tab switching
+let currentTab = 'output';
+function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// Base64 decoder
+function base64Decode(str) {
+    try {
+        return decodeURIComponent(atob(str).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    } catch(e) {
+        return null;
+    }
+}
+
+// Simple XOR decoder
+function xorDecrypt(str, key) {
+    let result = '';
+    for (let i = 0; i < str.length; i++) {
+        result += String.fromCharCode(str.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return result;
+}
+
+// Detect and decrypt obfuscated Lua
+function decryptLua(code) {
+    let result = { success: false, method: '', original: '', error: '' };
+    const trimmed = code.trim();
+
+    // Method 1: loadstring with base64
+    const loadstringMatch = trimmed.match(/loadstring\s*\(\s*['"]([A-Za-z0-9+/=]+)['"]\s*\)/);
+    if (loadstringMatch) {
+        const decoded = base64Decode(loadstringMatch[1]);
+        if (decoded) { result.success = true; result.method = 'loadstring + Base64'; result.original = decoded; return result; }
+    }
+
+    // Method 2: load with base64
+    const loadMatch = trimmed.match(/load\s*\(\s*['"]([A-Za-z0-9+/=]+)['"]\s*\)/);
+    if (loadMatch) {
+        const decoded = base64Decode(loadMatch[1]);
+        if (decoded) { result.success = true; result.method = 'load + Base64'; result.original = decoded; return result; }
+    }
+
+    // Method 3: Base64 only
+    if (/^[A-Za-z0-9+/=]+$/.test(trimmed) && trimmed.length > 20) {
+        const decoded = base64Decode(trimmed);
+        if (decoded && (decoded.includes('function') || decoded.includes('local') || decoded.includes('print'))) {
+            result.success = true; result.method = 'Base64 مباشر'; result.original = decoded; return result;
+        }
+    }
+
+    // Method 4: string.reverse
+    if (trimmed.includes('string.reverse')) {
+        const reverseMatch = trimmed.match(/string\.reverse\s*\(\s*['"](.+)['"]\s*\)/);
+        if (reverseMatch) { result.success = true; result.method = 'string.reverse'; result.original = reverseMatch[1].split('').reverse().join(''); return result; }
+    }
+
+    // Method 5: string.char
+    const charMatch = trimmed.match(/string\.char\s*\(([^)]+)\)/);
+    if (charMatch) {
+        const chars = charMatch[1].split(',').map(n => String.fromCharCode(parseInt(n.trim())));
+        result.success = true; result.method = 'string.char'; result.original = chars.join(''); return result;
+    }
+
+    // Method 6: Byte array
+    const byteMatch = trimmed.match(/\{(\d+(?:,\s*\d+)*)\}/);
+    if (byteMatch && !trimmed.includes('function')) {
+        const bytes = byteMatch[1].split(',').map(n => String.fromCharCode(parseInt(n.trim())));
+        const decoded = bytes.join('');
+        if (decoded.includes('function') || decoded.includes('local')) {
+            result.success = true; result.method = 'Byte Array'; result.original = decoded; return result;
+        }
+    }
+
+    // Method 7: XOR with common keys
+    const commonKeys = ['key', 'lua', 'script', 'obf', '123', 'abc', 'KEY', 'LUA'];
+    for (let key of commonKeys) {
+        try {
+            const decrypted = xorDecrypt(trimmed, key);
+            if (decrypted.includes('function') || decrypted.includes('local') || decrypted.includes('print')) {
+                result.success = true; result.method = 'XOR (key: ' + key + ')'; result.original = decrypted; return result;
+            }
+        } catch(e) {}
+    }
+
+    // Method 8: URL encoded
+    try {
+        const urlDecoded = decodeURIComponent(trimmed);
+        if (urlDecoded !== trimmed && (urlDecoded.includes('function') || urlDecoded.includes('local'))) {
+            result.success = true; result.method = 'URL Encoding'; result.original = urlDecoded; return result;
+        }
+    } catch(e) {}
+
+    // Method 9: Hex encoded
+    if (/^[0-9a-fA-F\s]+$/.test(trimmed) && trimmed.length > 10) {
+        try {
+            const hex = trimmed.replace(/\s/g, '');
+            let decoded = '';
+            for (let i = 0; i < hex.length; i += 2) {
+                decoded += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+            }
+            if (decoded.includes('function') || decoded.includes('local')) {
+                result.success = true; result.method = 'Hex Encoding'; result.original = decoded; return result;
+            }
+        } catch(e) {}
+    }
+
+    // Method 10: Already readable
+    if (trimmed.includes('function') || trimmed.includes('local') || trimmed.includes('print') || trimmed.includes('if') || trimmed.includes('for')) {
+        result.success = true; result.method = 'كود عادي (غير مشفر)'; result.original = code; return result;
+    }
+
+    result.error = 'لم يتم التعرف على طريقة التشفير. جرب كود مشفر بـ Base64, loadstring, XOR, أو string.char';
+    return result;
+}
+
+function decryptCode() {
+    const code = codeEditor.value.trim();
+    if (!code) {
+        decryptOutput.innerHTML = '<div class="decrypt-status error">❌ الصق كود مشفر أولاً</div>';
+        switchTab('decrypt');
+        return;
+    }
+    switchTab('decrypt');
+    decryptOutput.innerHTML = '<div class="decrypt-status info">⏳ جاري فك التشفير...</div>';
+
+    setTimeout(() => {
+        const result = decryptLua(code);
+        if (result.success) {
+            let html = '<div class="decrypt-status success">✅ تم فك التشفير! الطريقة: ' + result.method + '</div>';
+            html += '<div class="decrypt-result">' + escapeHtml(result.original) + '</div>';
+            html += '<button class="copy-btn" onclick="copyDecrypted()">📋 نسخ الكود</button>';
+            html += '<button class="copy-btn" style="background:#22c55e;margin-right:8px;" onclick="useDecrypted()">▶️ تشغيل</button>';
+            decryptOutput.innerHTML = html;
+            window.decryptedCode = result.original;
+        } else {
+            decryptOutput.innerHTML = '<div class="decrypt-status error">❌ ' + result.error + '</div>';
+        }
+    }, 500);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function copyDecrypted() {
+    if (window.decryptedCode) {
+        navigator.clipboard.writeText(window.decryptedCode).then(() => {
+            const btn = event.target;
+            btn.textContent = '✅ تم النسخ!';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = '📋 نسخ الكود'; btn.classList.remove('copied'); }, 2000);
+        });
+    }
+}
+
+function useDecrypted() {
+    if (window.decryptedCode) {
+        codeEditor.value = window.decryptedCode;
+        switchTab('output');
+        runCode();
+    }
+}
+
+
 const output = document.getElementById('output');
 const visualOutput = document.getElementById('visualOutput');
 const lessonContent = document.getElementById('lessonContent');
