@@ -9,7 +9,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Cairo', sans-serif; background: #0f172a; color: #e2e8f0; height: 100vh; overflow: hidden; }
         .container { display: flex; height: 100vh; }
-        .sidebar { width: 300px; background: #1e293b; border-left: 1px solid #334155; overflow-y: auto; padding: 20px; }
+        .sidebar { width: 280px; background: #1e293b; border-left: 1px solid #334155; overflow-y: auto; padding: 20px; }
         .sidebar h1 { color: #fbbf24; font-size: 24px; margin-bottom: 5px; text-align: center; }
         .sidebar .subtitle { color: #94a3b8; font-size: 12px; text-align: center; margin-bottom: 20px; }
         .lesson-section { margin-bottom: 15px; }
@@ -23,37 +23,63 @@
         .lesson-list li:hover { background: #334155; color: #fbbf24; }
         .lesson-list li.active { background: #0ea5e9; color: white; }
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .top-bar { background: #1e293b; padding: 15px 25px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
-        .top-bar h2 { color: #fbbf24; font-size: 18px; }
-        .run-btn { background: #22c55e; color: white; border: none; padding: 10px 25px; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
+        .top-bar { background: #1e293b; padding: 12px 20px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .top-bar h2 { color: #fbbf24; font-size: 16px; }
+        .run-btn { background: #22c55e; color: white; border: none; padding: 8px 20px; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
         .run-btn:hover { background: #16a34a; transform: translateY(-1px); }
-        .run-btn:active { transform: translateY(0); }
         .editor-area { flex: 1; display: flex; overflow: hidden; }
-        .editor-panel { flex: 1; display: flex; flex-direction: column; border-left: 1px solid #334155; }
-        .panel-header { background: #1e293b; padding: 8px 15px; font-size: 12px; color: #94a3b8; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 8px; }
-        .panel-header .dot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; }
-        .code-editor { flex: 1; background: #0f172a; color: #e2e8f0; font-family: 'Fira Code', 'Consolas', monospace; font-size: 14px; line-height: 1.6; padding: 15px; border: none; outline: none; resize: none; direction: ltr; text-align: left; }
-        .output-panel { flex: 1; display: flex; flex-direction: column; background: #0f172a; }
-        .output-panel .panel-header .dot { background: #f59e0b; }
-        .output-content { flex: 1; padding: 15px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 13px; line-height: 1.6; overflow-y: auto; direction: ltr; text-align: left; }
+        .editor-panel { flex: 1; display: flex; flex-direction: column; border-left: 1px solid #334155; min-width: 0; }
+        .panel-header { background: #1e293b; padding: 6px 12px; font-size: 11px; color: #94a3b8; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 8px; }
+        .panel-header .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot.green { background: #22c55e; }
+        .dot.orange { background: #f59e0b; }
+        .dot.purple { background: #a855f7; }
+        .code-editor { flex: 1; background: #0f172a; color: #e2e8f0; font-family: 'Fira Code', 'Consolas', monospace; font-size: 13px; line-height: 1.6; padding: 12px; border: none; outline: none; resize: none; direction: ltr; text-align: left; }
+        .output-panel { flex: 1; display: flex; flex-direction: column; background: #0f172a; min-width: 0; }
+        .output-content { flex: 1; padding: 12px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 12px; line-height: 1.6; overflow-y: auto; direction: ltr; text-align: left; }
         .output-line { margin: 2px 0; padding: 2px 0; }
         .output-line.input { color: #38bdf8; }
         .output-line.output { color: #22c55e; }
         .output-line.error { color: #ef4444; }
         .output-line.info { color: #94a3b8; }
-        .lesson-content { background: #1e293b; padding: 20px 25px; border-bottom: 1px solid #334155; max-height: 200px; overflow-y: auto; }
-        .lesson-content h3 { color: #fbbf24; margin-bottom: 10px; font-size: 16px; }
-        .lesson-content p { color: #cbd5e1; line-height: 1.8; font-size: 14px; }
+        .visual-panel { flex: 1; display: flex; flex-direction: column; background: #0f172a; border-left: 1px solid #334155; min-width: 0; }
+        .visual-content { flex: 1; padding: 12px; overflow-y: auto; }
+        .visual-box { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+        .visual-box-title { color: #fbbf24; font-size: 11px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .visual-var { display: flex; align-items: center; gap: 8px; padding: 4px 8px; background: #0f172a; border-radius: 4px; margin: 3px 0; font-size: 12px; }
+        .visual-var-name { color: #38bdf8; font-weight: 600; }
+        .visual-var-type { color: #94a3b8; font-size: 10px; background: #334155; padding: 1px 6px; border-radius: 3px; }
+        .visual-var-value { color: #22c55e; margin-right: auto; }
+        .visual-code-line { padding: 2px 0; font-family: 'Fira Code', monospace; font-size: 12px; }
+        .kw { color: #c678dd; } /* keyword */
+        .func { color: #61afef; } /* function */
+        .str { color: #98c379; } /* string */
+        .num { color: #d19a66; } /* number */
+        .cm { color: #5c6370; font-style: italic; } /* comment */
+        .var { color: #e06c75; } /* variable */
+        .op { color: #56b6c2; } /* operator */
+        .lesson-content { background: #1e293b; padding: 15px 20px; border-bottom: 1px solid #334155; max-height: 180px; overflow-y: auto; }
+        .lesson-content h3 { color: #fbbf24; margin-bottom: 8px; font-size: 15px; }
+        .lesson-content p { color: #cbd5e1; line-height: 1.8; font-size: 13px; }
         .lesson-content code { background: #334155; padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; color: #fbbf24; }
-        .examples { margin-top: 10px; }
-        .example-btn { background: #334155; color: #e2e8f0; border: 1px solid #475569; padding: 6px 12px; border-radius: 6px; font-family: 'Cairo', sans-serif; font-size: 12px; cursor: pointer; margin: 3px; transition: all 0.2s; }
+        .examples { margin-top: 8px; }
+        .example-btn { background: #334155; color: #e2e8f0; border: 1px solid #475569; padding: 5px 10px; border-radius: 6px; font-family: 'Cairo', sans-serif; font-size: 11px; cursor: pointer; margin: 2px; transition: all 0.2s; }
         .example-btn:hover { background: #475569; border-color: #38bdf8; color: #38bdf8; }
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-        .clear-btn { background: #ef4444; color: white; border: none; padding: 6px 15px; border-radius: 6px; font-family: 'Cairo', sans-serif; font-size: 12px; cursor: pointer; margin-right: 10px; }
+        .clear-btn { background: #ef4444; color: white; border: none; padding: 5px 12px; border-radius: 6px; font-family: 'Cairo', sans-serif; font-size: 11px; cursor: pointer; margin-right: 8px; }
         .clear-btn:hover { background: #dc2626; }
+        .visual-flow { display: flex; flex-direction: column; gap: 4px; }
+        .flow-step { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #0f172a; border-radius: 6px; border-right: 3px solid #38bdf8; }
+        .flow-step-num { background: #38bdf8; color: #0f172a; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+        .flow-step-text { font-size: 11px; color: #cbd5e1; }
+        .flow-arrow { text-align: center; color: #475569; font-size: 14px; }
+        .visual-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .visual-table th { background: #334155; color: #fbbf24; padding: 4px 8px; text-align: left; }
+        .visual-table td { background: #0f172a; padding: 4px 8px; border-top: 1px solid #334155; }
+        .visual-empty { color: #475569; text-align: center; padding: 20px; font-size: 12px; }
     </style>
 <base target="_blank">
 </head>
@@ -62,16 +88,6 @@
         <div class="sidebar">
             <h1>🌙 Lua</h1>
             <div class="subtitle">المحرر التفاعلي لتعلم Lua</div>
-            <div class="lesson-section" data-section="basics">
-                <h3>📚 الأساسيات <span class="arrow">▼</span></h3>
-                <ul class="lesson-list">
-                    <li data-lesson="intro">مقدمة عن Lua</li>
-                    <li data-lesson="variables">المتغيرات</li>
-                    <li data-lesson="datatypes">أنواع البيانات</li>
-                    <li data-lesson="operators">العمليات الحسابية</li>
-                    <li data-lesson="strings">النصوص</li>
-                </ul>
-            </div>
             <div class="lesson-section" data-section="control">
                 <h3>🔀 التحكم <span class="arrow">▼</span></h3>
                 <ul class="lesson-list">
@@ -81,29 +97,20 @@
                     <li data-lesson="functions">الدوال (Functions)</li>
                 </ul>
             </div>
-            <div class="lesson-section" data-section="advanced">
-                <h3>🚀 متقدم <span class="arrow">▼</span></h3>
+            <div class="lesson-section" data-section="strings">
+                <h3>📝 النصوص <span class="arrow">▼</span></h3>
                 <ul class="lesson-list">
-                    <li data-lesson="metatables">Metatables</li>
-                    <li data-lesson="modules">الوحدات (Modules)</li>
-                    <li data-lesson="coroutines">Coroutines</li>
-                    <li data-lesson="oop">البرمجة كائنية</li>
-                </ul>
-            </div>
-            <div class="lesson-section" data-section="roblox">
-                <h3>🎮 Roblox <span class="arrow">▼</span></h3>
-                <ul class="lesson-list">
-                    <li data-lesson="roblox-basics">أساسيات Roblox</li>
-                    <li data-lesson="events">الأحداث (Events)</li>
-                    <li data-lesson="tweening">Tweening</li>
-                    <li data-lesson="remote">Remote Events</li>
+                    <li data-lesson="strings-basics">أساسيات النصوص</li>
+                    <li data-lesson="string-functions">دوال النصوص</li>
+                    <li data-lesson="string-format">تنسيق النصوص</li>
+                    <li data-lesson="string-patterns">الأنماط (Patterns)</li>
                 </ul>
             </div>
         </div>
         <div class="main-content">
             <div class="lesson-content" id="lessonContent">
                 <h3>👋 أهلاً بك في محرر Lua التفاعلي!</h3>
-                <p>اختر درس من الشريط الجانبي لتبدأ التعلم. اكتب كود Lua في المحرر واضغط ▶️ تشغيل لتشغيله. يمكنك تجربة الأمثلة الجاهزة أدناه:</p>
+                <p>اختر درس من الشريط الجانبي لتبدأ التعلم. اكتب كود Lua في المحرر واضغط ▶️ تشغيل لتشغيله.</p>
                 <div class="examples">
                     <button class="example-btn" onclick="loadExample('hello')">👋 Hello World</button>
                     <button class="example-btn" onclick="loadExample('variables')">📦 متغيرات</button>
@@ -118,13 +125,13 @@
             <div class="top-bar">
                 <h2 id="currentLesson">محرر Lua التفاعلي</h2>
                 <div>
-                    <button class="clear-btn" onclick="clearOutput()">🗑️ مسح النتائج</button>
-                    <button class="run-btn" onclick="runCode()"><span>▶️</span> تشغيل الكود</button>
+                    <button class="clear-btn" onclick="clearOutput()">🗑️ مسح</button>
+                    <button class="run-btn" onclick="runCode()"><span>▶️</span> تشغيل</button>
                 </div>
             </div>
             <div class="editor-area">
                 <div class="editor-panel">
-                    <div class="panel-header"><span class="dot"></span>main.lua</div>
+                    <div class="panel-header"><span class="dot green"></span>main.lua</div>
                     <textarea class="code-editor" id="codeEditor" spellcheck="false" placeholder="-- اكتب كود Lua هنا...">-- مرحباً! اكتب كود Lua هنا
 -- اضغط على ▶️ تشغيل لتشغيل الكود
 
@@ -132,10 +139,16 @@ print("Hello, World!")
 print("مرحباً بك في Lua!")</textarea>
                 </div>
                 <div class="output-panel">
-                    <div class="panel-header"><span class="dot"></span>النتائج (Output)</div>
+                    <div class="panel-header"><span class="dot orange"></span>النتائج (Output)</div>
                     <div class="output-content" id="output">
                         <div class="output-line info">🚀 جاهز لتشغيل الكود...</div>
                         <div class="output-line info">─────────────────────────</div>
+                    </div>
+                </div>
+                <div class="visual-panel">
+                    <div class="panel-header"><span class="dot purple"></span>🔍 تصور السكربت</div>
+                    <div class="visual-content" id="visualOutput">
+                        <div class="visual-empty">🎨 اضغط "تشغيل" لرؤية تصور السكربت</div>
                     </div>
                 </div>
             </div>
@@ -144,30 +157,20 @@ print("مرحباً بك في Lua!")</textarea>
 
 <script>
 const lessons = {
-    intro: { title: "مقدمة عن Lua", content: `<h3>🌙 ما هي Lua؟</h3><p>Lua هي لغة برمجة خفيفة الوزن، سريعة، وسهلة التعلم. تستخدم بشكل واسع في الألعاب (مثل Roblox)، تطبيقات الويب، والأنظمة المدمجة.</p><p>مميزاتها: <code>سريعة</code> <code>خفيفة</code> <code>سهلة التضمين</code> <code>قوية</code></p><div class="examples"><button class="example-btn" onclick="loadExample('hello')">👋 Hello World</button><button class="example-btn" onclick="loadExample('comments')">💬 تعليقات</button></div>` },
-    variables: { title: "المتغيرات", content: `<h3>📦 المتغيرات في Lua</h3><p>في Lua، المتغيرات <code>global</code> بشكل افتراضي. لجعلها <code>local</code> استخدم الكلمة المحلية.</p><p><code>local name = "Ali"</code> — متغير محلي</p><p><code>age = 25</code> — متغير عام</p><div class="examples"><button class="example-btn" onclick="loadExample('variables')">📦 أمثلة متغيرات</button><button class="example-btn" onclick="loadExample('multiple')">📦 متغيرات متعددة</button></div>` },
-    datatypes: { title: "أنواع البيانات", content: `<h3>🧱 أنواع البيانات في Lua</h3><p>Lua لديها 8 أنواع أساسية: <code>nil</code> <code>boolean</code> <code>number</code> <code>string</code> <code>table</code> <code>function</code> <code>userdata</code> <code>thread</code></p><p>استخدم <code>type()</code> لمعرفة نوع أي قيمة.</p><div class="examples"><button class="example-btn" onclick="loadExample('types')">🔍 أنواع البيانات</button></div>` },
-    operators: { title: "العمليات الحسابية", content: `<h3>🔢 العمليات الحسابية</h3><p>العمليات الأساسية: <code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>^</code> <code>%</code></p><p>دوال الرياضيات: <code>math.sqrt()</code> <code>math.random()</code> <code>math.floor()</code> <code>math.pi</code></p><div class="examples"><button class="example-btn" onclick="loadExample('math')">🔢 أمثلة رياضية</button></div>` },
-    strings: { title: "النصوص", content: `<h3>📝 النصوص في Lua</h3><p>يمكن تعريف النصوص بـ: <code>"نص"</code> أو <code>'نص'</code> أو <code>[[نص متعدد الأسطر]]</code></p><p>دمج النصوص: <code>..</code> — طول النص: <code>#</code> — تحويل الرقم: <code>tostring()</code></p><div class="examples"><button class="example-btn" onclick="loadExample('string')">📝 أمثلة نصوص</button></div>` },
-    if: { title: "if / else", content: `<h3>❓ الجمل الشرطية</h3><p>الهيكل: <code>if condition then ... elseif ... then ... else ... end</code></p><p>عوامل المقارنة: <code>==</code> <code>~=</code> <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code></p><div class="examples"><button class="example-btn" onclick="loadExample('ifelse')">❓ أمثلة if/else</button></div>` },
-    loops: { title: "الحلقات", content: `<h3>🔄 الحلقات في Lua</h3><p><code>for i = 1, 10 do ... end</code> — حلقة for رقمية</p><p><code>for k, v in pairs(table) do ... end</code> — حلقة على جدول</p><p><code>while condition do ... end</code> — حلقة while</p><p><code>repeat ... until condition</code> — حلقة repeat</p><div class="examples"><button class="example-btn" onclick="loadExample('loop')">🔄 أمثلة حلقات</button><button class="example-btn" onclick="loadExample('forpairs')">🔄 for pairs</button></div>` },
-    tables: { title: "الجداول (Tables)", content: `<h3>📊 الجداول في Lua</h3><p>الجدول هو الهيكل الوحيد للبيانات في Lua. يستخدم كـ: مصفوفة، قاموس، كائن، قائمة.</p><p><code>local t = {}</code> — جدول فارغ</p><p><code>t[1] = "value"</code> أو <code>t.key = "value"</code></p><div class="examples"><button class="example-btn" onclick="loadExample('table')">📊 أمثلة جداول</button><button class="example-btn" onclick="loadExample('table2')">📊 جداول متقدمة</button></div>` },
-    functions: { title: "الدوال (Functions)", content: `<h3>⚙️ الدوال في Lua</h3><p><code>function name(param) ... return value end</code></p><p>الدوال هي first-class citizens — يمكن تمريرها كمتغيرات وإرجاعها.</p><p>دوال anonymous: <code>local f = function() ... end</code></p><div class="examples"><button class="example-btn" onclick="loadExample('function')">⚙️ أمثلة دوال</button><button class="example-btn" onclick="loadExample('function2')">⚙️ دوال متقدمة</button></div>` },
-    metatables: { title: "Metatables", content: `<h3>✨ Metatables</h3><p>Metatables تسمح بتغيير سلوك الجداول. تستخدم للـ operator overloading والوراثة.</p><p><code>setmetatable(table, metatable)</code> — <code>getmetatable(table)</code></p><div class="examples"><button class="example-btn" onclick="loadExample('metatable')">✨ مثال Metatable</button></div>` },
-    modules: { title: "الوحدات (Modules)", content: `<h3>📦 الوحدات في Lua</h3><p>استخدم <code>require("module")</code> لاستيراد وحدة.</p><p>لإنشاء وحدة: <code>local M = {} ... return M</code></p><div class="examples"><button class="example-btn" onclick="loadExample('module')">📦 مثال وحدة</button></div>` },
-    coroutines: { title: "Coroutines", content: `<h3>🧵 Coroutines</h3><p>Coroutines هي نوع من التعاونية (cooperative) multitasking.</p><p><code>coroutine.create()</code> — <code>coroutine.resume()</code> — <code>coroutine.yield()</code></p><div class="examples"><button class="example-btn" onclick="loadExample('coroutine')">🧵 مثال Coroutine</button></div>` },
-    oop: { title: "البرمجة كائنية", content: `<h3>🏗️ البرمجة كائنية في Lua</h3><p>Lua لا تدعم OOP بشكل أصلي، لكن يمكن محاكاتها باستخدام الجداول و Metatables.</p><p>الوراثة تُحقق بـ <code>__index</code> في Metatable.</p><div class="examples"><button class="example-btn" onclick="loadExample('oop')">🏗️ مثال OOP</button></div>` },
-    'roblox-basics': { title: "أساسيات Roblox", content: `<h3>🎮 أساسيات Roblox Lua</h3><p>في Roblox، تستخدم <code>game</code> للوصول للعالم، و<code>script</code> للوصول للسكربت الحالي.</p><p><code>game.Players.LocalPlayer</code> — <code>workspace</code> — <code>game.ReplicatedStorage</code></p><div class="examples"><button class="example-btn" onclick="loadExample('roblox1')">🎮 مثال Roblox</button></div>` },
-    events: { title: "الأحداث (Events)", content: `<h3>🔔 الأحداث في Roblox</h3><p>الأحداث تسمح بالتواصل بين الأجزاء المختلفة من اللعبة.</p><p><code>Part.Touched:Connect(function)...</code> — <code>RemoteEvent:FireClient()</code></p><div class="examples"><button class="example-btn" onclick="loadExample('event')">🔔 مثال Events</button></div>` },
-    tweening: { title: "Tweening", content: `<h3>🎬 Tweening في Roblox</h3><p>TweenService يسمح بتحريك الخصائص بشكل سلس.</p><p><code>TweenService:Create(object, tweenInfo, properties)</code></p><div class="examples"><button class="example-btn" onclick="loadExample('tween')">🎬 مثال Tween</button></div>` },
-    remote: { title: "Remote Events", content: `<h3>📡 Remote Events</h3><p>للتواصل بين Client و Server في Roblox.</p><p><code>RemoteEvent:FireServer(...)</code> — <code>RemoteEvent.OnServerEvent:Connect(...)</code></p><div class="examples"><button class="example-btn" onclick="loadExample('remote')">📡 مثال Remote</button></div>` }
+    if: { title: "if / else", content: `<h3>❓ الجمل الشرطية</h3><p>الهيكل: <code>if condition then ... elseif ... then ... else ... end</code></p><p>عوامل المقارنة: <code>==</code> <code>~=</code> <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code></p><div class="examples"><button class="example-btn" onclick="loadExample('ifelse')">❓ أمثلة if/else</button><button class="example-btn" onclick="loadExample('ifelse2')">❓ if/else متقدم</button></div>` },
+    loops: { title: "الحلقات", content: `<h3>🔄 الحلقات في Lua</h3><p><code>for i = 1, 10 do ... end</code> — حلقة for رقمية</p><p><code>while condition do ... end</code> — حلقة while</p><p><code>repeat ... until condition</code> — حلقة repeat</p><div class="examples"><button class="example-btn" onclick="loadExample('loop')">🔄 أمثلة حلقات</button><button class="example-btn" onclick="loadExample('forpairs')">🔄 for pairs</button><button class="example-btn" onclick="loadExample('while')">🔄 while loop</button></div>` },
+    tables: { title: "الجداول (Tables)", content: `<h3>📊 الجداول في Lua</h3><p>الجدول هو الهيكل الوحيد للبيانات في Lua. يستخدم كـ: مصفوفة، قاموس، كائن، قائمة.</p><p><code>local t = {}</code> — جدول فارغ</p><p><code>t[1] = "value"</code> أو <code>t.key = "value"</code></p><div class="examples"><button class="example-btn" onclick="loadExample('table')">📊 أمثلة جداول</button><button class="example-btn" onclick="loadExample('table2')">📊 جداول متقدمة</button><button class="example-btn" onclick="loadExample('table3')">📊 جداول ثنائية</button></div>` },
+    functions: { title: "الدوال (Functions)", content: `<h3>⚙️ الدوال في Lua</h3><p><code>function name(param) ... return value end</code></p><p>الدوال هي first-class citizens — يمكن تمريرها كمتغيرات وإرجاعها.</p><div class="examples"><button class="example-btn" onclick="loadExample('function')">⚙️ أمثلة دوال</button><button class="example-btn" onclick="loadExample('function2')">⚙️ دوال متقدمة</button><button class="example-btn" onclick="loadExample('function3')">⚙️ دوال متغيرة</button></div>` },
+    'strings-basics': { title: "أساسيات النصوص", content: `<h3>📝 أساسيات النصوص في Lua</h3><p>يمكن تعريف النصوص بـ: <code>"نص"</code> أو <code>'نص'</code> أو <code>[[نص متعدد الأسطر]]</code></p><p>دمج النصوص: <code>..</code> — طول النص: <code>#</code></p><div class="examples"><button class="example-btn" onclick="loadExample('string')">📝 أمثلة نصوص</button><button class="example-btn" onclick="loadExample('string2')">📝 نصوص متعددة</button></div>` },
+    'string-functions': { title: "دوال النصوص", content: `<h3>🔤 دوال النصوص في Lua</h3><p><code>string.upper()</code> — <code>string.lower()</code> — <code>string.len()</code></p><p><code>string.sub()</code> — <code>string.find()</code> — <code>string.gsub()</code></p><div class="examples"><button class="example-btn" onclick="loadExample('stringfuncs')">🔤 دوال النصوص</button><button class="example-btn" onclick="loadExample('stringfind')">🔤 البحث والاستبدال</button></div>` },
+    'string-format': { title: "تنسيق النصوص", content: `<h3>📋 تنسيق النصوص في Lua</h3><p><code>string.format("%s", name)</code> — تنسيق بـ %s, %d, %f</p><p><code>string.format("%.2f", 3.14159)</code> — عدد عشري بمنزلتين</p><div class="examples"><button class="example-btn" onclick="loadExample('stringformat')">📋 تنسيق النصوص</button></div>` },
+    'string-patterns': { title: "الأنماط (Patterns)", content: `<h3>🔍 الأنماط في Lua</h3><p>Lua تستخدم patterns مش regex:</p><p><code>%a</code> حرف — <code>%d</code> رقم — <code>%s</code> مسافة — <code>%w</code> حرف أو رقم</p><div class="examples"><button class="example-btn" onclick="loadExample('patterns')">🔍 أمثلة Patterns</button></div>` }
 };
 
 const examples = {
     hello: `-- Hello World!
 print("Hello, World!")
-print("مرحباً بك في Lua!")
-print("Lua سهلة وقوية!")`,
+print("مرحباً بك في Lua!")`,
     variables: `-- المتغيرات في Lua
 local name = "Ali"
 local age = 20
@@ -176,22 +179,6 @@ local isStudent = true
 print("الاسم: " .. name)
 print("العمر: " .. age)
 print("طالب: " .. tostring(isStudent))`,
-    multiple: `-- متغيرات متعددة
-local a, b, c = 10, 20, 30
-print("a = " .. a)
-print("b = " .. b) 
-print("c = " .. c)
-
--- تبديل قيم
-a, b = b, a
-print("بعد التبديل: a = " .. a .. ", b = " .. b)`,
-    types: `-- أنواع البيانات
-print(type("Hello"))      -- string
-print(type(123))          -- number
-print(type(true))         -- boolean
-print(type(nil))          -- nil
-print(type({}))           -- table
-print(type(function() end)) -- function`,
     math: `-- العمليات الرياضية
 local x = 10
 local y = 3
@@ -201,27 +188,89 @@ print("x - y = " .. (x - y))
 print("x * y = " .. (x * y))
 print("x / y = " .. (x / y))
 print("x ^ y = " .. (x ^ y))
-print("x % y = " .. (x % y))
+print("x % y = " .. (x % y))`,
+    table: `-- الجداول في Lua
+local fruits = {"تفاح", "موز", "برتقال"}
+print(fruits[1])
+print(fruits[2])
 
-print("جذر 16 = " .. math.sqrt(16))
-print("قيمة pi = " .. math.pi)
-print("رقم عشوائي = " .. math.random(1, 100))`,
-    string: `-- النصوص في Lua
-local str1 = "Hello"
-local str2 = 'World'
-local str3 = [[نص
-متعدد
-الأسطر]]
+local student = {
+    name = "محمد",
+    grade = 95,
+    subjects = {"رياضيات", "فيزياء", "برمجة"}
+}
 
-print(str1 .. " " .. str2)
-print("طول النص: " .. #str1)
-print("النص الكبير: " .. string.upper(str1))
-print("النص الصغير: " .. string.lower(str2))
-print(str3)
+print("الطالب: " .. student.name)
+print("الدرجة: " .. student.grade)`,
+    table2: `-- جداول متقدمة
+local matrix = {
+    {1, 2, 3},
+    {4, 5, 6},
+    {7, 8, 9}
+}
 
--- استبدال
-local text = "أحب Lua"
-print(string.gsub(text, "Lua", "البرمجة"))`,
+print("العنصر [2][3] = " .. matrix[2][3])
+
+local calculator = {
+    add = function(a, b) return a + b end,
+    subtract = function(a, b) return a - b end
+}
+
+print("5 + 3 = " .. calculator.add(5, 3))`,
+    table3: `-- جداول ثنائية (2D)
+local board = {}
+for i = 1, 3 do
+    board[i] = {}
+    for j = 1, 3 do
+        board[i][j] = i * j
+    end
+end
+
+for i = 1, 3 do
+    local row = ""
+    for j = 1, 3 do
+        row = row .. board[i][j] .. " "
+    end
+    print(row)
+end`,
+    function: `-- الدوال في Lua
+function greet(name)
+    return "مرحباً، " .. name .. "!"
+end
+
+print(greet("أحمد"))
+print(greet("فاطمة"))
+
+function power(base, exponent)
+    exponent = exponent or 2
+    return base ^ exponent
+end
+
+print("2^3 = " .. power(2, 3))
+print("5^2 = " .. power(5))`,
+    function2: `-- دوال متقدمة
+function makeMultiplier(factor)
+    return function(number)
+        return number * factor
+    end
+end
+
+local double = makeMultiplier(2)
+local triple = makeMultiplier(3)
+
+print("double 5 = " .. double(5))
+print("triple 4 = " .. triple(4))`,
+    function3: `-- دوال متغيرة (Variadic)
+function sum(...)
+    local total = 0
+    for _, v in ipairs({...}) do
+        total = total + v
+    end
+    return total
+end
+
+print("sum(1,2,3,4,5) = " .. sum(1, 2, 3, 4, 5))
+print("sum(10,20) = " .. sum(10, 20))`,
     ifelse: `-- الجمل الشرطية
 local score = 85
 
@@ -235,7 +284,6 @@ else
     print("يحتاج تحسين")
 end
 
--- and, or, not
 local hasMoney = true
 local hasTime = false
 
@@ -244,6 +292,20 @@ if hasMoney and hasTime then
 else
     print("لا يمكنك السفر الآن")
 end`,
+    ifelse2: `-- if/else متقدم
+local age = 25
+local hasLicense = true
+
+if age >= 18 and hasLicense then
+    print("يمكنك قيادة السيارة")
+elseif age >= 18 and not hasLicense then
+    print("أنت كبير لكن ما عندك رخصة")
+else
+    print("صغير على القيادة")
+end
+
+local status = (age >= 18) and "بالغ" or "قاصر"
+print("الحالة: " .. status)`,
     loop: `-- الحلقات
 print("=== for loop ===")
 for i = 1, 5 do
@@ -263,6 +325,18 @@ repeat
     print("repeat: " .. n)
     n = n + 1
 until n > 3`,
+    while: `-- while loop متقدم
+local correct = false
+local attempts = 0
+
+while not correct and attempts < 3 do
+    attempts = attempts + 1
+    print("محاولة " .. attempts)
+    if attempts == 2 then
+        correct = true
+        print("تم التخمين الصحيح!")
+    end
+end`,
     forpairs: `-- for مع pairs و ipairs
 local person = {
     name = "Ali",
@@ -270,289 +344,103 @@ local person = {
     city = "الرياض"
 }
 
-print("=== pairs (جميع المفاتيح) ===")
+print("=== pairs ===")
 for key, value in pairs(person) do
     print(key .. " = " .. tostring(value))
 end
 
 local numbers = {10, 20, 30, 40}
-print("=== ipairs (فقط المفاتيح الرقمية) ===")
+print("=== ipairs ===")
 for index, value in ipairs(numbers) do
     print(index .. " -> " .. value)
 end`,
-    table: `-- الجداول في Lua
-local fruits = {"تفاح", "موز", "برتقال"}
-print(fruits[1])  -- تفاح
-print(fruits[2])  -- موز
+    string: `-- النصوص في Lua
+local str1 = "Hello"
+local str2 = 'World'
+local str3 = [[نص
+متعدد
+الأسطر]]
 
--- جدول كقاموس
-local student = {
-    name = "محمد",
-    grade = 95,
-    subjects = {"رياضيات", "فيزياء", "برمجة"}
-}
+print(str1 .. " " .. str2)
+print("طول النص: " .. #str1)
+print("النص الكبير: " .. string.upper(str1))
+print("النص الصغير: " .. string.lower(str2))
+print(str3)
 
-print("الطالب: " .. student.name)
-print("الدرجة: " .. student.grade)
-print("المادة الأولى: " .. student.subjects[1])
+local text = "أحب Lua"
+print(string.gsub(text, "Lua", "البرمجة"))`,
+    string2: `-- نصوص متعددة الأسطر
+local poem = [[
+Lua لغة جميلة
+سهلة وقوية
+تعلمها ممتع
+]]
 
--- إضافة عناصر
-student.age = 18
-print("العمر: " .. student.age)`,
-    table2: `-- جداول متقدمة
-local matrix = {
-    {1, 2, 3},
-    {4, 5, 6},
-    {7, 8, 9}
-}
+print(poem)
 
-print("العنصر [2][3] = " .. matrix[2][3])
+local quote = "He said \"Hello\""
+print(quote)`,
+    stringfuncs: `-- دوال النصوص
+local text = "Hello World"
 
--- جدول مع دوال
-local calculator = {
-    add = function(a, b) return a + b end,
-    subtract = function(a, b) return a - b end
-}
+print("upper: " .. string.upper(text))
+print("lower: " .. string.lower(text))
+print("length: " .. string.len(text))
+print("sub(1,5): " .. string.sub(text, 1, 5))
+print("sub(7): " .. string.sub(text, 7))
+print("find 'World': " .. string.find(text, "World"))
 
-print("5 + 3 = " .. calculator.add(5, 3))
-print("10 - 4 = " .. calculator.subtract(10, 4))`,
-    function: `-- الدوال في Lua
-function greet(name)
-    return "مرحباً، " .. name .. "!"
+local num = 42
+print("tostring: " .. tostring(num))`,
+    stringfind: `-- البحث والاستبدال
+local text = "The quick brown fox jumps over the lazy dog"
+
+local startPos, endPos = string.find(text, "fox")
+print("found 'fox' at: " .. startPos .. " to " .. endPos)
+
+local newText, count = string.gsub(text, "o", "0")
+print("replaced " .. count .. " times")
+print("result: " .. newText)
+
+local result = string.gsub("hello 123 world", "%d+", "NUM")
+print("numbers replaced: " .. result)`,
+    stringformat: `-- تنسيق النصوص
+local name = "Ali"
+local age = 25
+local pi = 3.14159
+
+print(string.format("Name: %s, Age: %d", name, age))
+print(string.format("Pi = %.2f", pi))
+print(string.format("Pi = %.4f", pi))
+print(string.format("Number: %05d", 42))
+print(string.format("Hex: %x", 255))
+
+print(string.format("%-10s|", "left"))
+print(string.format("%10s|", "right"))`,
+    patterns: `-- الأنماط في Lua
+local text = "Hello 123 World"
+
+print(string.match(text, "%d+"))
+print(string.match(text, "%a+"))
+
+print("=== all words ===")
+for word in string.gmatch(text, "%a+") do
+    print(word)
 end
 
-print(greet("أحمد"))
-print(greet("فاطمة"))
-
--- دالة مع parameters افتراضية
-function power(base, exponent)
-    exponent = exponent or 2  -- افتراضي = 2
-    return base ^ exponent
+print("=== all digits ===")
+for num in string.gmatch("a1b2c3d4", "%d") do
+    print(num)
 end
 
-print("2^3 = " .. power(2, 3))
-print("5^2 = " .. power(5))  -- يستخدم الافتراضي`,
-    function2: `-- دوال متقدمة
--- دالة ترجع دالة
-function makeMultiplier(factor)
-    return function(number)
-        return number * factor
-    end
-end
-
-local double = makeMultiplier(2)
-local triple = makeMultiplier(3)
-
-print("double 5 = " .. double(5))
-print("triple 4 = " .. triple(4))
-
--- variadic functions
-function sum(...)
-    local total = 0
-    for _, v in ipairs({...}) do
-        total = total + v
-    end
-    return total
-end
-
-print("sum(1,2,3,4,5) = " .. sum(1, 2, 3, 4, 5))`,
-    metatable: `-- Metatables
-local t1 = {10, 20, 30}
-local t2 = {40, 50, 60}
-
-local mt = {
-    __add = function(a, b)
-        local result = {}
-        for i = 1, math.max(#a, #b) do
-            result[i] = (a[i] or 0) + (b[i] or 0)
-        end
-        return result
-    end,
-    __tostring = function(t)
-        return "{" .. table.concat(t, ", ") .. "}"
-    end
-}
-
-setmetatable(t1, mt)
-setmetatable(t2, mt)
-
-local t3 = t1 + t2
-print("t1 + t2 = ")
-for i, v in ipairs(t3) do
-    print("  [" .. i .. "] = " .. v)
-end`,
-    module: `-- مثال وحدة (Module)
--- في الواقع تكون في ملف منفصل
-local myModule = {}
-
-function myModule.sayHello(name)
-    return "Hello " .. name
-end
-
-function myModule.add(a, b)
-    return a + b
-end
-
--- return myModule  -- في الملف المنفصل
-
--- استخدام الوحدة
-print(myModule.sayHello("Lua"))
-print("5 + 3 = " .. myModule.add(5, 3))`,
-    coroutine: `-- Coroutines
-local co = coroutine.create(function(a, b)
-    print("بدأت Coroutine")
-    local sum = a + b
-    coroutine.yield(sum)  -- توقف مؤقت
-    local product = a * b
-    coroutine.yield(product)
-    print("انتهت Coroutine")
-    return a - b
-end)
-
-local ok1, result1 = coroutine.resume(co, 10, 5)
-print("الحالة: " .. tostring(ok1) .. ", النتيجة: " .. result1)
-
-local ok2, result2 = coroutine.resume(co)
-print("الحالة: " .. tostring(ok2) .. ", النتيجة: " .. result2)
-
-local ok3, result3 = coroutine.resume(co)
-print("الحالة: " .. tostring(ok3) .. ", النتيجة: " .. result3)`,
-    oop: `-- البرمجة كائنية في Lua
-local Person = {}
-Person.__index = Person
-
-function Person.new(name, age)
-    local self = setmetatable({}, Person)
-    self.name = name
-    self.age = age
-    return self
-end
-
-function Person:greet()
-    return "Hi, I'm " .. self.name
-end
-
-function Person:getAge()
-    return self.age
-end
-
--- وراثة
-local Student = setmetatable({}, {__index = Person})
-Student.__index = Student
-
-function Student.new(name, age, grade)
-    local self = Person.new(name, age)
-    setmetatable(self, Student)
-    self.grade = grade
-    return self
-end
-
-function Student:study()
-    return self.name .. " is studying"
-end
-
-local p = Person.new("Ali", 25)
-local s = Student.new("Sara", 20, "A")
-
-print(p:greet())
-print(s:greet())
-print(s:study())
-print("Age: " .. s:getAge())`,
-    comments: `-- هذا تعليق بسطر واحد
-
---[[
-    هذا تعليق
-    متعدد الأسطر
-    في Lua
---]]
-
-print("التعليقات لا تؤثر على الكود!")  -- تعليق في نهاية السطر`,
-    roblox1: `-- ⚠️ هذا كود Roblox - يعمل فقط في Roblox Studio
--- مثال: طباعة اسم اللاعب
-
-local player = game.Players.LocalPlayer
-print("مرحباً " .. player.Name)
-
--- الوصول لجزء في workspace
-local part = workspace:FindFirstChild("MyPart")
-if part then
-    print("وجدت الجزء: " .. part.Name)
-end
-
--- تغيير خصائص
-local brick = workspace.Baseplate
-if brick then
-    brick.BrickColor = BrickColor.new("Bright red")
-end`,
-    event: `-- ⚠️ كود Roblox - Events
-local part = workspace:FindFirstChild("ClickPart")
-
-if part then
-    part.Touched:Connect(function(hit)
-        local character = hit.Parent
-        local player = game.Players:GetPlayerFromCharacter(character)
-        if player then
-            print(player.Name .. " لمس الجزء!")
-        end
-    end)
-end
-
--- ClickDetector
-local clickDetector = part:FindFirstChild("ClickDetector")
-if clickDetector then
-    clickDetector.MouseClick:Connect(function(player)
-        print(player.Name .. " ضغط على الجزء!")
-    end)
-end`,
-    tween: `-- ⚠️ كود Roblox - Tweening
-local TweenService = game:GetService("TweenService")
-local part = workspace:FindFirstChild("MovingPart")
-
-if part then
-    local tweenInfo = TweenInfo.new(
-        2,                       -- المدة (ثواني)
-        Enum.EasingStyle.Quad,   -- النمط
-        Enum.EasingDirection.Out -- الاتجاه
-    )
-
-    local goal = {
-        Position = Vector3.new(10, 5, 0),
-        Color = Color3.fromRGB(255, 0, 0)
-    }
-
-    local tween = TweenService:Create(part, tweenInfo, goal)
-    tween:Play()
-
-    tween.Completed:Connect(function()
-        print("انتهى التحريك!")
-    end)
-end`,
-    remote: `-- ⚠️ كود Roblox - Remote Events
--- Server Script
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local remoteEvent = ReplicatedStorage:WaitForChild("MyRemoteEvent")
-
-remoteEvent.OnServerEvent:Connect(function(player, message)
-    print(player.Name .. " أرسل: " .. message)
-    remoteEvent:FireClient(player, "تم الاستلام!")
-end)
-
--- Client Script (LocalScript)
---[[
-local remoteEvent = game.ReplicatedStorage:WaitForChild("MyRemoteEvent")
-
-remoteEvent:FireServer("مرحباً من العميل!")
-
-remoteEvent.OnClientEvent:Connect(function(response)
-    print("الرد من السيرفر: " .. response)
-end)
---]]
-
-print("انظر للتعليقات في الكود أعلاه للـ Client Script")`
+local date = "Today is 2024-06-24"
+local y, m, d = string.match(date, "(%d+)-(%d+)-(%d+)")
+print("Year: " .. y .. ", Month: " .. m .. ", Day: " .. d)`
 };
 
 const codeEditor = document.getElementById('codeEditor');
 const output = document.getElementById('output');
+const visualOutput = document.getElementById('visualOutput');
 const lessonContent = document.getElementById('lessonContent');
 const currentLessonTitle = document.getElementById('currentLesson');
 
@@ -584,6 +472,7 @@ function loadExample(name) {
 
 function clearOutput() {
     output.innerHTML = '<div class="output-line info">🚀 جاهز لتشغيل الكود...</div><div class="output-line info">─────────────────────────</div>';
+    visualOutput.innerHTML = '<div class="visual-empty">🎨 اضغط "تشغيل" لرؤية تصور السكربت</div>';
 }
 
 function addOutput(type, text) {
@@ -594,19 +483,174 @@ function addOutput(type, text) {
     output.scrollTop = output.scrollHeight;
 }
 
+// Syntax highlighting for Lua
+function highlightLua(code) {
+    let html = '';
+    const lines = code.split('\n');
+    const keywords = ['local', 'function', 'end', 'if', 'then', 'else', 'elseif', 'for', 'do', 'while', 'repeat', 'until', 'return', 'and', 'or', 'not', 'in', 'nil', 'true', 'false'];
+
+    lines.forEach(line => {
+        let highlighted = line
+            .replace(/(--.*$)/g, '<span class="cm">$1</span>')
+            .replace(/("(?:[^"\\]|\\.)*")/g, '<span class="str">$1</span>')
+            .replace(/('(?:[^'\\]|\\.)*')/g, '<span class="str">$1</span>')
+            .replace(/(\b\d+\.?\d*\b)/g, '<span class="num">$1</span>');
+
+        keywords.forEach(kw => {
+            const regex = new RegExp('\\b' + kw + '\\b', 'g');
+            highlighted = highlighted.replace(regex, '<span class="kw">' + kw + '</span>');
+        });
+
+        highlighted = highlighted
+            .replace(/\b(print|type|tostring|tonumber|pairs|ipairs|next|assert|error|pcall|xpcall|collectgarbage|dofile|loadfile|load|require|module|select|unpack|rawget|rawset|rawequal|setmetatable|getmetatable)\b/g, '<span class="func">$1</span>')
+            .replace(/\b(math|string|table|io|os|debug|coroutine|package)\b/g, '<span class="var">$1</span>')
+            .replace(/(\+|-|\*|\/|%|\^|\.\.|==|~=|<=|>=|<|>|=)/g, '<span class="op">$1</span>');
+
+        html += '<div class="visual-code-line">' + highlighted + '</div>';
+    });
+    return html;
+}
+
+// Parse code for visualization
+function visualizeCode(code) {
+    const lines = code.split('\n');
+    let html = '';
+
+    // Variables found
+    let vars = [];
+    let funcs = [];
+    let tbls = [];
+    let loops = [];
+    let conds = [];
+
+    lines.forEach((line, idx) => {
+        const trimmed = line.trim();
+
+        // Variables
+        const varMatch = trimmed.match(/^local\s+(\w+)\s*=/);
+        if (varMatch && !trimmed.includes('function')) {
+            const name = varMatch[1];
+            const val = trimmed.substring(trimmed.indexOf('=') + 1).trim();
+            let type = 'any';
+            if (val.startsWith('"') || val.startsWith("'")) type = 'string';
+            else if (val.startsWith('{')) type = 'table';
+            else if (val.startsWith('function') || val.includes('function')) type = 'function';
+            else if (!isNaN(parseFloat(val))) type = 'number';
+            else if (val === 'true' || val === 'false') type = 'boolean';
+            vars.push({name, type, value: val.length > 30 ? val.substring(0, 30) + '...' : val});
+        }
+
+        // Functions
+        const funcMatch = trimmed.match(/function\s+(\w+)/);
+        if (funcMatch) {
+            funcs.push({name: funcMatch[1], line: idx + 1});
+        }
+
+        // Tables
+        const tblMatch = trimmed.match(/^local\s+(\w+)\s*=\s*\{/);
+        if (tblMatch) {
+            tbls.push({name: tblMatch[1], line: idx + 1});
+        }
+
+        // Loops
+        if (trimmed.startsWith('for ')) loops.push({type: 'for', line: idx + 1, code: trimmed.substring(0, 40)});
+        if (trimmed.startsWith('while ')) loops.push({type: 'while', line: idx + 1, code: trimmed.substring(0, 40)});
+        if (trimmed.startsWith('repeat')) loops.push({type: 'repeat', line: idx + 1});
+
+        // Conditions
+        if (trimmed.startsWith('if ')) conds.push({type: 'if', line: idx + 1, code: trimmed.substring(0, 40)});
+    });
+
+    // Build visualization
+    html += '<div class="visual-box">';
+    html += '<div class="visual-box-title">📋 الكود مع التلوين</div>';
+    html += highlightLua(code);
+    html += '</div>';
+
+    if (vars.length > 0) {
+        html += '<div class="visual-box">';
+        html += '<div class="visual-box-title">📦 المتغيرات (' + vars.length + ')</div>';
+        vars.forEach(v => {
+            html += '<div class="visual-var">';
+            html += '<span class="visual-var-name">' + v.name + '</span>';
+            html += '<span class="visual-var-type">' + v.type + '</span>';
+            html += '<span class="visual-var-value">= ' + v.value + '</span>';
+            html += '</div>';
+        });
+        html += '</div>';
+    }
+
+    if (funcs.length > 0) {
+        html += '<div class="visual-box">';
+        html += '<div class="visual-box-title">⚙️ الدوال (' + funcs.length + ')</div>';
+        funcs.forEach(f => {
+            html += '<div class="visual-var">';
+            html += '<span class="visual-var-name">' + f.name + '()</span>';
+            html += '<span class="visual-var-type">function</span>';
+            html += '<span class="visual-var-value">سطر ' + f.line + '</span>';
+            html += '</div>';
+        });
+        html += '</div>';
+    }
+
+    if (tbls.length > 0) {
+        html += '<div class="visual-box">';
+        html += '<div class="visual-box-title">📊 الجداول (' + tbls.length + ')</div>';
+        tbls.forEach(t => {
+            html += '<div class="visual-var">';
+            html += '<span class="visual-var-name">' + t.name + '</span>';
+            html += '<span class="visual-var-type">table</span>';
+            html += '<span class="visual-var-value">سطر ' + t.line + '</span>';
+            html += '</div>';
+        });
+        html += '</div>';
+    }
+
+    if (loops.length > 0) {
+        html += '<div class="visual-box">';
+        html += '<div class="visual-box-title">🔄 الحلقات (' + loops.length + ')</div>';
+        html += '<div class="visual-flow">';
+        loops.forEach((l, i) => {
+            html += '<div class="flow-step">';
+            html += '<div class="flow-step-num">' + (i + 1) + '</div>';
+            html += '<div class="flow-step-text">' + l.type + ' - سطر ' + l.line + '</div>';
+            html += '</div>';
+            if (i < loops.length - 1) html += '<div class="flow-arrow">↓</div>';
+        });
+        html += '</div></div>';
+    }
+
+    if (conds.length > 0) {
+        html += '<div class="visual-box">';
+        html += '<div class="visual-box-title">❓ الشروط (' + conds.length + ')</div>';
+        conds.forEach((c, i) => {
+            html += '<div class="flow-step">';
+            html += '<div class="flow-step-num">' + (i + 1) + '</div>';
+            html += '<div class="flow-step-text">if - سطر ' + c.line + '</div>';
+            html += '</div>';
+        });
+        html += '</div>';
+    }
+
+    if (vars.length === 0 && funcs.length === 0 && tbls.length === 0 && loops.length === 0 && conds.length === 0) {
+        html += '<div class="visual-box">';
+        html += '<div class="visual-box-title">📋 الكود</div>';
+        html += highlightLua(code);
+        html += '</div>';
+    }
+
+    return html;
+}
+
 function runCode() {
     const code = codeEditor.value;
     addOutput('input', '> تشغيل الكود...');
     addOutput('info', '─────────────────────────');
 
+    // Visualize
+    visualOutput.innerHTML = visualizeCode(code);
+
     try {
-        if (code.includes('game.Players') || code.includes('workspace.') || code.includes('TweenService') || code.includes('RemoteEvent') || code.includes('BrickColor')) {
-            if (code.includes('⚠️') || code.includes('Roblox')) {
-                addOutput('error', '⚠️ هذا كود Roblox - يتطلب بيئة Roblox Studio لتشغيله');
-                addOutput('info', '💡 في Roblox Studio، ضع هذا الكود في ServerScriptService أو StarterPlayerScripts');
-                return;
-            }
-        }
         interpretLua(code);
     } catch (e) {
         addOutput('error', 'خطأ: ' + e.message);
@@ -631,6 +675,10 @@ function interpretLua(code) {
         }
         if (expr.startsWith('[[') && expr.endsWith(']]')) {
             return expr.slice(2, -2);
+        }
+        if (expr.startsWith('[=') && expr.includes(']=')) {
+            const closeIdx = expr.lastIndexOf(']=');
+            return expr.slice(expr.indexOf('[')+1, closeIdx);
         }
         if (!isNaN(parseFloat(expr)) && isFinite(expr)) {
             return parseFloat(expr);
@@ -1048,7 +1096,15 @@ function interpretLua(code) {
                 else if (func === 'sub') result = String(args[0]).substring(args[1] - 1, args[2]);
                 else if (func === 'len') result = String(args[0]).length;
                 else if (func === 'find') result = String(args[0]).indexOf(args[1]) + 1;
-                else if (func === 'format') result = args[0].replace(/%s/g, () => args[1]).replace(/%d/g, () => args[1]);
+                else if (func === 'format') {
+                    let fmt = args[0];
+                    for (let k = 1; k < args.length; k++) {
+                        fmt = fmt.replace(/%[sdxf%]/, args[k]);
+                    }
+                    result = fmt;
+                }
+                else if (func === 'match') result = String(args[0]).match(new RegExp(args[1]));
+                else if (func === 'gmatch') result = 'gmatch iterator';
                 else result = line;
                 if (line.startsWith('print(')) {
                     addOutput('output', result);
@@ -1119,39 +1175,6 @@ function interpretLua(code) {
                 }
                 if (line.startsWith('print(')) {
                     addOutput('output', result);
-                }
-            }
-            i++;
-            continue;
-        }
-
-        if (line.includes('setmetatable')) {
-            const metaMatch = line.match(/setmetatable\(([^,]+),\s*(\w+)\)/);
-            if (metaMatch) {
-                const tableName = metaMatch[1].trim();
-                const metaName = metaMatch[2].trim();
-                if (tables[metaName]) {
-                    if (tables[tableName]) {
-                        tables[tableName].__metatable = tables[metaName];
-                    } else if (localVars[tableName]) {
-                        localVars[tableName].__metatable = tables[metaName];
-                    }
-                }
-            }
-            i++;
-            continue;
-        }
-
-        if (line.includes('coroutine.')) {
-            const coMatch = line.match(/coroutine\.(\w+)\(([^)]*)\)/);
-            if (coMatch) {
-                const func = coMatch[1];
-                if (func === 'create') {
-                    addOutput('info', '🧵 Coroutine created (simulated)');
-                } else if (func === 'resume') {
-                    addOutput('info', '🧵 Coroutine resumed (simulated)');
-                } else if (func === 'yield') {
-                    addOutput('info', '🧵 Coroutine yielded (simulated)');
                 }
             }
             i++;
