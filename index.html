@@ -499,49 +499,128 @@ function xorDecrypt(str, key) {
     return result;
 }
 
-// Detect and decrypt obfuscated Lua
+// Enhanced Lua deobfuscator
 function decryptLua(code) {
     let result = { success: false, method: '', original: '', error: '' };
-    const trimmed = code.trim();
+    let working = code.trim();
 
-    // Method 1: loadstring with base64
-    const loadstringMatch = trimmed.match(/loadstring\s*\(\s*['"]([A-Za-z0-9+/=]+)['"]\s*\)/);
+    // Helper: evaluate string concatenation
+    function evalConcat(str) {
+        // Replace string.char(X) with actual char
+        str = str.replace(/string\.char\s*\(\s*(\d+)\s*\)/g, (match, num) => {
+            return '"' + String.fromCharCode(parseInt(num)) + '"';
+        });
+        // Replace "a" .. "b" with "ab"
+        let prev;
+        do {
+            prev = str;
+            str = str.replace(/(["'])([^"']*)\s*\.\.\s*(["'])([^"']*)/g, (match, q1, s1, q2, s2) => {
+                return q1 + s1 + s2 + q1;
+            });
+        } while (str !== prev);
+        return str;
+    }
+
+    // Helper: extract string values from concatenated string.char
+    function extractStringChar(code) {
+        let result = code;
+        // Find all string.char sequences and replace them
+        const charPattern = /string\.char\s*\(\s*(\d+(?:\s*,\s*\d+)*)\s*\)/g;
+        result = result.replace(charPattern, (match, nums) => {
+            const chars = nums.split(',').map(n => String.fromCharCode(parseInt(n.trim())));
+            return '"' + chars.join('') + '"';
+        });
+        return result;
+    }
+
+    // Helper: resolve variable concatenations
+    function resolveVars(code) {
+        let result = code;
+        // Find local var = "a" .. "b" patterns and inline them
+        const varPattern = /local\s+(\w+)\s*=\s*([^
+]+)/g;
+        let match;
+        const vars = {};
+        while ((match = varPattern.exec(code)) !== null) {
+            const varName = match[1];
+            let varValue = match[2].trim();
+            varValue = evalConcat(varValue);
+            // Extract string value
+            const strMatch = varValue.match(/^["'](.+)["']$/);
+            if (strMatch) {
+                vars[varName] = strMatch[1];
+            }
+        }
+        // Replace variable usages
+        for (let v in vars) {
+            const regex = new RegExp('\b' + v + '\b', 'g');
+            result = result.replace(regex, '"' + vars[v] + '"');
+        }
+        return result;
+    }
+
+    // Method 1: Try to resolve string.char + concatenation obfuscation
+    let attempt = working;
+    attempt = extractStringChar(attempt);
+    attempt = evalConcat(attempt);
+    attempt = resolveVars(attempt);
+    attempt = evalConcat(attempt); // Second pass after var resolution
+
+    // Check if we got a readable URL or code
+    if (attempt.includes('http') || attempt.includes('function') || attempt.includes('local') || attempt.includes('print')) {
+        // Clean up the result
+        let cleaned = attempt;
+        // Extract URL if present
+        const urlMatch = cleaned.match(/(https?:\/\/[^"\s\)]+)/);
+        if (urlMatch) {
+            result.success = true;
+            result.method = 'string.char + concatenation (استخراج الرابط)';
+            result.original = 'الرابط المستخرج:
+' + urlMatch[1] + '
+
+الكود المفكوك:
+' + cleaned;
+            return result;
+        }
+        if (cleaned !== working && cleaned.length > 10) {
+            result.success = true;
+            result.method = 'string.char + concatenation';
+            result.original = cleaned;
+            return result;
+        }
+    }
+
+    // Method 2: loadstring with base64
+    const loadstringMatch = working.match(/loadstring\s*\(\s*['"]([A-Za-z0-9+/=]+)['"]\s*\)/);
     if (loadstringMatch) {
         const decoded = base64Decode(loadstringMatch[1]);
         if (decoded) { result.success = true; result.method = 'loadstring + Base64'; result.original = decoded; return result; }
     }
 
-    // Method 2: load with base64
-    const loadMatch = trimmed.match(/load\s*\(\s*['"]([A-Za-z0-9+/=]+)['"]\s*\)/);
+    // Method 3: load with base64
+    const loadMatch = working.match(/load\s*\(\s*['"]([A-Za-z0-9+/=]+)['"]\s*\)/);
     if (loadMatch) {
         const decoded = base64Decode(loadMatch[1]);
         if (decoded) { result.success = true; result.method = 'load + Base64'; result.original = decoded; return result; }
     }
 
-    // Method 3: Base64 only
-    if (/^[A-Za-z0-9+/=]+$/.test(trimmed) && trimmed.length > 20) {
-        const decoded = base64Decode(trimmed);
+    // Method 4: Base64 only
+    if (/^[A-Za-z0-9+/=]+$/.test(working) && working.length > 20) {
+        const decoded = base64Decode(working);
         if (decoded && (decoded.includes('function') || decoded.includes('local') || decoded.includes('print'))) {
             result.success = true; result.method = 'Base64 مباشر'; result.original = decoded; return result;
         }
     }
 
-    // Method 4: string.reverse
-    if (trimmed.includes('string.reverse')) {
-        const reverseMatch = trimmed.match(/string\.reverse\s*\(\s*['"](.+)['"]\s*\)/);
+    // Method 5: string.reverse
+    if (working.includes('string.reverse')) {
+        const reverseMatch = working.match(/string\.reverse\s*\(\s*['"](.+)['"]\s*\)/);
         if (reverseMatch) { result.success = true; result.method = 'string.reverse'; result.original = reverseMatch[1].split('').reverse().join(''); return result; }
     }
 
-    // Method 5: string.char
-    const charMatch = trimmed.match(/string\.char\s*\(([^)]+)\)/);
-    if (charMatch) {
-        const chars = charMatch[1].split(',').map(n => String.fromCharCode(parseInt(n.trim())));
-        result.success = true; result.method = 'string.char'; result.original = chars.join(''); return result;
-    }
-
     // Method 6: Byte array
-    const byteMatch = trimmed.match(/\{(\d+(?:,\s*\d+)*)\}/);
-    if (byteMatch && !trimmed.includes('function')) {
+    const byteMatch = working.match(/\{(\d+(?:,\s*\d+)*)\}/);
+    if (byteMatch && !working.includes('function')) {
         const bytes = byteMatch[1].split(',').map(n => String.fromCharCode(parseInt(n.trim())));
         const decoded = bytes.join('');
         if (decoded.includes('function') || decoded.includes('local')) {
@@ -553,7 +632,7 @@ function decryptLua(code) {
     const commonKeys = ['key', 'lua', 'script', 'obf', '123', 'abc', 'KEY', 'LUA'];
     for (let key of commonKeys) {
         try {
-            const decrypted = xorDecrypt(trimmed, key);
+            const decrypted = xorDecrypt(working, key);
             if (decrypted.includes('function') || decrypted.includes('local') || decrypted.includes('print')) {
                 result.success = true; result.method = 'XOR (key: ' + key + ')'; result.original = decrypted; return result;
             }
@@ -562,16 +641,16 @@ function decryptLua(code) {
 
     // Method 8: URL encoded
     try {
-        const urlDecoded = decodeURIComponent(trimmed);
-        if (urlDecoded !== trimmed && (urlDecoded.includes('function') || urlDecoded.includes('local'))) {
+        const urlDecoded = decodeURIComponent(working);
+        if (urlDecoded !== working && (urlDecoded.includes('function') || urlDecoded.includes('local'))) {
             result.success = true; result.method = 'URL Encoding'; result.original = urlDecoded; return result;
         }
     } catch(e) {}
 
     // Method 9: Hex encoded
-    if (/^[0-9a-fA-F\s]+$/.test(trimmed) && trimmed.length > 10) {
+    if (/^[0-9a-fA-F\s]+$/.test(working) && working.length > 10) {
         try {
-            const hex = trimmed.replace(/\s/g, '');
+            const hex = working.replace(/\s/g, '');
             let decoded = '';
             for (let i = 0; i < hex.length; i += 2) {
                 decoded += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
@@ -583,11 +662,11 @@ function decryptLua(code) {
     }
 
     // Method 10: Already readable
-    if (trimmed.includes('function') || trimmed.includes('local') || trimmed.includes('print') || trimmed.includes('if') || trimmed.includes('for')) {
+    if (working.includes('function') || working.includes('local') || working.includes('print') || working.includes('if') || working.includes('for')) {
         result.success = true; result.method = 'كود عادي (غير مشفر)'; result.original = code; return result;
     }
 
-    result.error = 'لم يتم التعرف على طريقة التشفير. جرب كود مشفر بـ Base64, loadstring, XOR, أو string.char';
+    result.error = 'لم يتم التعرف على طريقة التشفير. الكود يستخدم obfuscation متقدم. جرب فتح الرابط يدوياً إذا كان موجود.';
     return result;
 }
 
