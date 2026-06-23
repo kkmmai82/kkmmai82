@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعلم Lua - المحرر التفاعلي</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cairo', sans-serif; background: #0f172a; color: #e2e8f0; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 300px; background: #1e293b; border-left: 1px solid #334155; overflow-y: auto; padding: 20px; }
+        .sidebar h1 { color: #fbbf24; font-size: 24px; margin-bottom: 5px; text-align: center; }
+        .sidebar .subtitle { color: #94a3b8; font-size: 12px; text-align: center; margin-bottom: 20px; }
+        .lesson-section { margin-bottom: 15px; }
+        .lesson-section h3 { color: #38bdf8; font-size: 14px; margin-bottom: 8px; padding: 8px 12px; background: #334155; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+        .lesson-section h3:hover { background: #475569; }
+        .lesson-section h3 .arrow { transition: transform 0.3s; }
+        .lesson-section.collapsed h3 .arrow { transform: rotate(-90deg); }
+        .lesson-section.collapsed .lesson-list { display: none; }
+        .lesson-list { list-style: none; padding-right: 10px; }
+        .lesson-list li { padding: 8px 12px; margin: 4px 0; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s; color: #cbd5e1; }
+        .lesson-list li:hover { background: #334155; color: #fbbf24; }
+        .lesson-list li.active { background: #0ea5e9; color: white; }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .top-bar { background: #1e293b; padding: 15px 25px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .top-bar h2 { color: #fbbf24; font-size: 18px; }
+        .run-btn { background: #22c55e; color: white; border: none; padding: 10px 25px; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
+        .run-btn:hover { background: #16a34a; transform: translateY(-1px); }
+        .run-btn:active { transform: translateY(0); }
+        .editor-area { flex: 1; display: flex; overflow: hidden; }
+        .editor-panel { flex: 1; display: flex; flex-direction: column; border-left: 1px solid #334155; }
+        .panel-header { background: #1e293b; padding: 8px 15px; font-size: 12px; color: #94a3b8; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 8px; }
+        .panel-header .dot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; }
+        .code-editor { flex: 1; background: #0f172a; color: #e2e8f0; font-family: 'Fira Code', 'Consolas', monospace; font-size: 14px; line-height: 1.6; padding: 15px; border: none; outline: none; resize: none; direction: ltr; text-align: left; }
+        .output-panel { flex: 1; display: flex; flex-direction: column; background: #0f172a; }
+        .output-panel .panel-header .dot { background: #f59e0b; }
+        .output-content { flex: 1; padding: 15px; font-family: 'Fira Code', 'Consolas', monospace; font-size: 13px; line-height: 1.6; overflow-y: auto; direction: ltr; text-align: left; }
+        .output-line { margin: 2px 0; padding: 2px 0; }
+        .output-line.input { color: #38bdf8; }
+        .output-line.output { color: #22c55e; }
+        .output-line.error { color: #ef4444; }
+        .output-line.info { color: #94a3b8; }
+        .lesson-content { background: #1e293b; padding: 20px 25px; border-bottom: 1px solid #334155; max-height: 200px; overflow-y: auto; }
+        .lesson-content h3 { color: #fbbf24; margin-bottom: 10px; font-size: 16px; }
+        .lesson-content p { color: #cbd5e1; line-height: 1.8; font-size: 14px; }
+        .lesson-content code { background: #334155; padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; color: #fbbf24; }
+        .examples { margin-top: 10px; }
+        .example-btn { background: #334155; color: #e2e8f0; border: 1px solid #475569; padding: 6px 12px; border-radius: 6px; font-family: 'Cairo', sans-serif; font-size: 12px; cursor: pointer; margin: 3px; transition: all 0.2s; }
+        .example-btn:hover { background: #475569; border-color: #38bdf8; color: #38bdf8; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        .clear-btn { background: #ef4444; color: white; border: none; padding: 6px 15px; border-radius: 6px; font-family: 'Cairo', sans-serif; font-size: 12px; cursor: pointer; margin-right: 10px; }
+        .clear-btn:hover { background: #dc2626; }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>🌙 Lua</h1>
+            <div class="subtitle">المحرر التفاعلي لتعلم Lua</div>
+            <div class="lesson-section" data-section="basics">
+                <h3>📚 الأساسيات <span class="arrow">▼</span></h3>
+                <ul class="lesson-list">
+                    <li data-lesson="intro">مقدمة عن Lua</li>
+                    <li data-lesson="variables">المتغيرات</li>
+                    <li data-lesson="datatypes">أنواع البيانات</li>
+                    <li data-lesson="operators">العمليات الحسابية</li>
+                    <li data-lesson="strings">النصوص</li>
+                </ul>
+            </div>
+            <div class="lesson-section" data-section="control">
+                <h3>🔀 التحكم <span class="arrow">▼</span></h3>
+                <ul class="lesson-list">
+                    <li data-lesson="if">if / else</li>
+                    <li data-lesson="loops">الحلقات (for, while)</li>
+                    <li data-lesson="tables">الجداول (Tables)</li>
+                    <li data-lesson="functions">الدوال (Functions)</li>
+                </ul>
+            </div>
+            <div class="lesson-section" data-section="advanced">
+                <h3>🚀 متقدم <span class="arrow">▼</span></h3>
+                <ul class="lesson-list">
+                    <li data-lesson="metatables">Metatables</li>
+                    <li data-lesson="modules">الوحدات (Modules)</li>
+                    <li data-lesson="coroutines">Coroutines</li>
+                    <li data-lesson="oop">البرمجة كائنية</li>
+                </ul>
+            </div>
+            <div class="lesson-section" data-section="roblox">
+                <h3>🎮 Roblox <span class="arrow">▼</span></h3>
+                <ul class="lesson-list">
+                    <li data-lesson="roblox-basics">أساسيات Roblox</li>
+                    <li data-lesson="events">الأحداث (Events)</li>
+                    <li data-lesson="tweening">Tweening</li>
+                    <li data-lesson="remote">Remote Events</li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="lesson-content" id="lessonContent">
+                <h3>👋 أهلاً بك في محرر Lua التفاعلي!</h3>
+                <p>اختر درس من الشريط الجانبي لتبدأ التعلم. اكتب كود Lua في المحرر واضغط ▶️ تشغيل لتشغيله. يمكنك تجربة الأمثلة الجاهزة أدناه:</p>
+                <div class="examples">
+                    <button class="example-btn" onclick="loadExample('hello')">👋 Hello World</button>
+                    <button class="example-btn" onclick="loadExample('variables')">📦 متغيرات</button>
+                    <button class="example-btn" onclick="loadExample('math')">🔢 رياضيات</button>
+                    <button class="example-btn" onclick="loadExample('table')">📊 جدول</button>
+                    <button class="example-btn" onclick="loadExample('function')">⚙️ دالة</button>
+                    <button class="example-btn" onclick="loadExample('loop')">🔄 حلقة</button>
+                    <button class="example-btn" onclick="loadExample('ifelse')">❓ if/else</button>
+                    <button class="example-btn" onclick="loadExample('string')">📝 نصوص</button>
+                </div>
+            </div>
+            <div class="top-bar">
+                <h2 id="currentLesson">محرر Lua التفاعلي</h2>
+                <div>
+                    <button class="clear-btn" onclick="clearOutput()">🗑️ مسح النتائج</button>
+                    <button class="run-btn" onclick="runCode()"><span>▶️</span> تشغيل الكود</button>
+                </div>
+            </div>
+            <div class="editor-area">
+                <div class="editor-panel">
+                    <div class="panel-header"><span class="dot"></span>main.lua</div>
+                    <textarea class="code-editor" id="codeEditor" spellcheck="false" placeholder="-- اكتب كود Lua هنا...">-- مرحباً! اكتب كود Lua هنا
+-- اضغط على ▶️ تشغيل لتشغيل الكود
+
+print("Hello, World!")
+print("مرحباً بك في Lua!")</textarea>
+                </div>
+                <div class="output-panel">
+                    <div class="panel-header"><span class="dot"></span>النتائج (Output)</div>
+                    <div class="output-content" id="output">
+                        <div class="output-line info">🚀 جاهز لتشغيل الكود...</div>
+                        <div class="output-line info">─────────────────────────</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+const lessons = {
+    intro: { title: "مقدمة عن Lua", content: `<h3>🌙 ما هي Lua؟</h3><p>Lua هي لغة برمجة خفيفة الوزن، سريعة، وسهلة التعلم. تستخدم بشكل واسع في الألعاب (مثل Roblox)، تطبيقات الويب، والأنظمة المدمجة.</p><p>مميزاتها: <code>سريعة</code> <code>خفيفة</code> <code>سهلة التضمين</code> <code>قوية</code></p><div class="examples"><button class="example-btn" onclick="loadExample('hello')">👋 Hello World</button><button class="example-btn" onclick="loadExample('comments')">💬 تعليقات</button></div>` },
+    variables: { title: "المتغيرات", content: `<h3>📦 المتغيرات في Lua</h3><p>في Lua، المتغيرات <code>global</code> بشكل افتراضي. لجعلها <code>local</code> استخدم الكلمة المحلية.</p><p><code>local name = "Ali"</code> — متغير محلي</p><p><code>age = 25</code> — متغير عام</p><div class="examples"><button class="example-btn" onclick="loadExample('variables')">📦 أمثلة متغيرات</button><button class="example-btn" onclick="loadExample('multiple')">📦 متغيرات متعددة</button></div>` },
+    datatypes: { title: "أنواع البيانات", content: `<h3>🧱 أنواع البيانات في Lua</h3><p>Lua لديها 8 أنواع أساسية: <code>nil</code> <code>boolean</code> <code>number</code> <code>string</code> <code>table</code> <code>function</code> <code>userdata</code> <code>thread</code></p><p>استخدم <code>type()</code> لمعرفة نوع أي قيمة.</p><div class="examples"><button class="example-btn" onclick="loadExample('types')">🔍 أنواع البيانات</button></div>` },
+    operators: { title: "العمليات الحسابية", content: `<h3>🔢 العمليات الحسابية</h3><p>العمليات الأساسية: <code>+</code> <code>-</code> <code>*</code> <code>/</code> <code>^</code> <code>%</code></p><p>دوال الرياضيات: <code>math.sqrt()</code> <code>math.random()</code> <code>math.floor()</code> <code>math.pi</code></p><div class="examples"><button class="example-btn" onclick="loadExample('math')">🔢 أمثلة رياضية</button></div>` },
+    strings: { title: "النصوص", content: `<h3>📝 النصوص في Lua</h3><p>يمكن تعريف النصوص بـ: <code>"نص"</code> أو <code>'نص'</code> أو <code>[[نص متعدد الأسطر]]</code></p><p>دمج النصوص: <code>..</code> — طول النص: <code>#</code> — تحويل الرقم: <code>tostring()</code></p><div class="examples"><button class="example-btn" onclick="loadExample('string')">📝 أمثلة نصوص</button></div>` },
+    if: { title: "if / else", content: `<h3>❓ الجمل الشرطية</h3><p>الهيكل: <code>if condition then ... elseif ... then ... else ... end</code></p><p>عوامل المقارنة: <code>==</code> <code>~=</code> <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code></p><div class="examples"><button class="example-btn" onclick="loadExample('ifelse')">❓ أمثلة if/else</button></div>` },
+    loops: { title: "الحلقات", content: `<h3>🔄 الحلقات في Lua</h3><p><code>for i = 1, 10 do ... end</code> — حلقة for رقمية</p><p><code>for k, v in pairs(table) do ... end</code> — حلقة على جدول</p><p><code>while condition do ... end</code> — حلقة while</p><p><code>repeat ... until condition</code> — حلقة repeat</p><div class="examples"><button class="example-btn" onclick="loadExample('loop')">🔄 أمثلة حلقات</button><button class="example-btn" onclick="loadExample('forpairs')">🔄 for pairs</button></div>` },
+    tables: { title: "الجداول (Tables)", content: `<h3>📊 الجداول في Lua</h3><p>الجدول هو الهيكل الوحيد للبيانات في Lua. يستخدم كـ: مصفوفة، قاموس، كائن، قائمة.</p><p><code>local t = {}</code> — جدول فارغ</p><p><code>t[1] = "value"</code> أو <code>t.key = "value"</code></p><div class="examples"><button class="example-btn" onclick="loadExample('table')">📊 أمثلة جداول</button><button class="example-btn" onclick="loadExample('table2')">📊 جداول متقدمة</button></div>` },
+    functions: { title: "الدوال (Functions)", content: `<h3>⚙️ الدوال في Lua</h3><p><code>function name(param) ... return value end</code></p><p>الدوال هي first-class citizens — يمكن تمريرها كمتغيرات وإرجاعها.</p><p>دوال anonymous: <code>local f = function() ... end</code></p><div class="examples"><button class="example-btn" onclick="loadExample('function')">⚙️ أمثلة دوال</button><button class="example-btn" onclick="loadExample('function2')">⚙️ دوال متقدمة</button></div>` },
+    metatables: { title: "Metatables", content: `<h3>✨ Metatables</h3><p>Metatables تسمح بتغيير سلوك الجداول. تستخدم للـ operator overloading والوراثة.</p><p><code>setmetatable(table, metatable)</code> — <code>getmetatable(table)</code></p><div class="examples"><button class="example-btn" onclick="loadExample('metatable')">✨ مثال Metatable</button></div>` },
+    modules: { title: "الوحدات (Modules)", content: `<h3>📦 الوحدات في Lua</h3><p>استخدم <code>require("module")</code> لاستيراد وحدة.</p><p>لإنشاء وحدة: <code>local M = {} ... return M</code></p><div class="examples"><button class="example-btn" onclick="loadExample('module')">📦 مثال وحدة</button></div>` },
+    coroutines: { title: "Coroutines", content: `<h3>🧵 Coroutines</h3><p>Coroutines هي نوع من التعاونية (cooperative) multitasking.</p><p><code>coroutine.create()</code> — <code>coroutine.resume()</code> — <code>coroutine.yield()</code></p><div class="examples"><button class="example-btn" onclick="loadExample('coroutine')">🧵 مثال Coroutine</button></div>` },
+    oop: { title: "البرمجة كائنية", content: `<h3>🏗️ البرمجة كائنية في Lua</h3><p>Lua لا تدعم OOP بشكل أصلي، لكن يمكن محاكاتها باستخدام الجداول و Metatables.</p><p>الوراثة تُحقق بـ <code>__index</code> في Metatable.</p><div class="examples"><button class="example-btn" onclick="loadExample('oop')">🏗️ مثال OOP</button></div>` },
+    'roblox-basics': { title: "أساسيات Roblox", content: `<h3>🎮 أساسيات Roblox Lua</h3><p>في Roblox، تستخدم <code>game</code> للوصول للعالم، و<code>script</code> للوصول للسكربت الحالي.</p><p><code>game.Players.LocalPlayer</code> — <code>workspace</code> — <code>game.ReplicatedStorage</code></p><div class="examples"><button class="example-btn" onclick="loadExample('roblox1')">🎮 مثال Roblox</button></div>` },
+    events: { title: "الأحداث (Events)", content: `<h3>🔔 الأحداث في Roblox</h3><p>الأحداث تسمح بالتواصل بين الأجزاء المختلفة من اللعبة.</p><p><code>Part.Touched:Connect(function)...</code> — <code>RemoteEvent:FireClient()</code></p><div class="examples"><button class="example-btn" onclick="loadExample('event')">🔔 مثال Events</button></div>` },
+    tweening: { title: "Tweening", content: `<h3>🎬 Tweening في Roblox</h3><p>TweenService يسمح بتحريك الخصائص بشكل سلس.</p><p><code>TweenService:Create(object, tweenInfo, properties)</code></p><div class="examples"><button class="example-btn" onclick="loadExample('tween')">🎬 مثال Tween</button></div>` },
+    remote: { title: "Remote Events", content: `<h3>📡 Remote Events</h3><p>للتواصل بين Client و Server في Roblox.</p><p><code>RemoteEvent:FireServer(...)</code> — <code>RemoteEvent.OnServerEvent:Connect(...)</code></p><div class="examples"><button class="example-btn" onclick="loadExample('remote')">📡 مثال Remote</button></div>` }
+};
+
+const examples = {
+    hello: `-- Hello World!
+print("Hello, World!")
+print("مرحباً بك في Lua!")
+print("Lua سهلة وقوية!")`,
+    variables: `-- المتغيرات في Lua
+local name = "Ali"
+local age = 20
+local isStudent = true
+
+print("الاسم: " .. name)
+print("العمر: " .. age)
+print("طالب: " .. tostring(isStudent))`,
+    multiple: `-- متغيرات متعددة
+local a, b, c = 10, 20, 30
+print("a = " .. a)
+print("b = " .. b) 
+print("c = " .. c)
+
+-- تبديل قيم
+a, b = b, a
+print("بعد التبديل: a = " .. a .. ", b = " .. b)`,
+    types: `-- أنواع البيانات
+print(type("Hello"))      -- string
+print(type(123))          -- number
+print(type(true))         -- boolean
+print(type(nil))          -- nil
+print(type({}))           -- table
+print(type(function() end)) -- function`,
+    math: `-- العمليات الرياضية
+local x = 10
+local y = 3
+
+print("x + y = " .. (x + y))
+print("x - y = " .. (x - y))
+print("x * y = " .. (x * y))
+print("x / y = " .. (x / y))
+print("x ^ y = " .. (x ^ y))
+print("x % y = " .. (x % y))
+
+print("جذر 16 = " .. math.sqrt(16))
+print("قيمة pi = " .. math.pi)
+print("رقم عشوائي = " .. math.random(1, 100))`,
+    string: `-- النصوص في Lua
+local str1 = "Hello"
+local str2 = 'World'
+local str3 = [[نص
+متعدد
+الأسطر]]
+
+print(str1 .. " " .. str2)
+print("طول النص: " .. #str1)
+print("النص الكبير: " .. string.upper(str1))
+print("النص الصغير: " .. string.lower(str2))
+print(str3)
+
+-- استبدال
+local text = "أحب Lua"
+print(string.gsub(text, "Lua", "البرمجة"))`,
+    ifelse: `-- الجمل الشرطية
+local score = 85
+
+if score >= 90 then
+    print("ممتاز! A")
+elseif score >= 80 then
+    print("جيد جداً! B")
+elseif score >= 70 then
+    print("جيد! C")
+else
+    print("يحتاج تحسين")
+end
+
+-- and, or, not
+local hasMoney = true
+local hasTime = false
+
+if hasMoney and hasTime then
+    print("يمكنك السفر!")
+else
+    print("لا يمكنك السفر الآن")
+end`,
+    loop: `-- الحلقات
+print("=== for loop ===")
+for i = 1, 5 do
+    print("الرقم: " .. i)
+end
+
+print("=== while loop ===")
+local count = 3
+while count > 0 do
+    print("العد التنازلي: " .. count)
+    count = count - 1
+end
+
+print("=== repeat loop ===")
+local n = 1
+repeat
+    print("repeat: " .. n)
+    n = n + 1
+until n > 3`,
+    forpairs: `-- for مع pairs و ipairs
+local person = {
+    name = "Ali",
+    age = 25,
+    city = "الرياض"
+}
+
+print("=== pairs (جميع المفاتيح) ===")
+for key, value in pairs(person) do
+    print(key .. " = " .. tostring(value))
+end
+
+local numbers = {10, 20, 30, 40}
+print("=== ipairs (فقط المفاتيح الرقمية) ===")
+for index, value in ipairs(numbers) do
+    print(index .. " -> " .. value)
+end`,
+    table: `-- الجداول في Lua
+local fruits = {"تفاح", "موز", "برتقال"}
+print(fruits[1])  -- تفاح
+print(fruits[2])  -- موز
+
+-- جدول كقاموس
+local student = {
+    name = "محمد",
+    grade = 95,
+    subjects = {"رياضيات", "فيزياء", "برمجة"}
+}
+
+print("الطالب: " .. student.name)
+print("الدرجة: " .. student.grade)
+print("المادة الأولى: " .. student.subjects[1])
+
+-- إضافة عناصر
+student.age = 18
+print("العمر: " .. student.age)`,
+    table2: `-- جداول متقدمة
+local matrix = {
+    {1, 2, 3},
+    {4, 5, 6},
+    {7, 8, 9}
+}
+
+print("العنصر [2][3] = " .. matrix[2][3])
+
+-- جدول مع دوال
+local calculator = {
+    add = function(a, b) return a + b end,
+    subtract = function(a, b) return a - b end
+}
+
+print("5 + 3 = " .. calculator.add(5, 3))
+print("10 - 4 = " .. calculator.subtract(10, 4))`,
+    function: `-- الدوال في Lua
+function greet(name)
+    return "مرحباً، " .. name .. "!"
+end
+
+print(greet("أحمد"))
+print(greet("فاطمة"))
+
+-- دالة مع parameters افتراضية
+function power(base, exponent)
+    exponent = exponent or 2  -- افتراضي = 2
+    return base ^ exponent
+end
+
+print("2^3 = " .. power(2, 3))
+print("5^2 = " .. power(5))  -- يستخدم الافتراضي`,
+    function2: `-- دوال متقدمة
+-- دالة ترجع دالة
+function makeMultiplier(factor)
+    return function(number)
+        return number * factor
+    end
+end
+
+local double = makeMultiplier(2)
+local triple = makeMultiplier(3)
+
+print("double 5 = " .. double(5))
+print("triple 4 = " .. triple(4))
+
+-- variadic functions
+function sum(...)
+    local total = 0
+    for _, v in ipairs({...}) do
+        total = total + v
+    end
+    return total
+end
+
+print("sum(1,2,3,4,5) = " .. sum(1, 2, 3, 4, 5))`,
+    metatable: `-- Metatables
+local t1 = {10, 20, 30}
+local t2 = {40, 50, 60}
+
+local mt = {
+    __add = function(a, b)
+        local result = {}
+        for i = 1, math.max(#a, #b) do
+            result[i] = (a[i] or 0) + (b[i] or 0)
+        end
+        return result
+    end,
+    __tostring = function(t)
+        return "{" .. table.concat(t, ", ") .. "}"
+    end
+}
+
+setmetatable(t1, mt)
+setmetatable(t2, mt)
+
+local t3 = t1 + t2
+print("t1 + t2 = ")
+for i, v in ipairs(t3) do
+    print("  [" .. i .. "] = " .. v)
+end`,
+    module: `-- مثال وحدة (Module)
+-- في الواقع تكون في ملف منفصل
+local myModule = {}
+
+function myModule.sayHello(name)
+    return "Hello " .. name
+end
+
+function myModule.add(a, b)
+    return a + b
+end
+
+-- return myModule  -- في الملف المنفصل
+
+-- استخدام الوحدة
+print(myModule.sayHello("Lua"))
+print("5 + 3 = " .. myModule.add(5, 3))`,
+    coroutine: `-- Coroutines
+local co = coroutine.create(function(a, b)
+    print("بدأت Coroutine")
+    local sum = a + b
+    coroutine.yield(sum)  -- توقف مؤقت
+    local product = a * b
+    coroutine.yield(product)
+    print("انتهت Coroutine")
+    return a - b
+end)
+
+local ok1, result1 = coroutine.resume(co, 10, 5)
+print("الحالة: " .. tostring(ok1) .. ", النتيجة: " .. result1)
+
+local ok2, result2 = coroutine.resume(co)
+print("الحالة: " .. tostring(ok2) .. ", النتيجة: " .. result2)
+
+local ok3, result3 = coroutine.resume(co)
+print("الحالة: " .. tostring(ok3) .. ", النتيجة: " .. result3)`,
+    oop: `-- البرمجة كائنية في Lua
+local Person = {}
+Person.__index = Person
+
+function Person.new(name, age)
+    local self = setmetatable({}, Person)
+    self.name = name
+    self.age = age
+    return self
+end
+
+function Person:greet()
+    return "Hi, I'm " .. self.name
+end
+
+function Person:getAge()
+    return self.age
+end
+
+-- وراثة
+local Student = setmetatable({}, {__index = Person})
+Student.__index = Student
+
+function Student.new(name, age, grade)
+    local self = Person.new(name, age)
+    setmetatable(self, Student)
+    self.grade = grade
+    return self
+end
+
+function Student:study()
+    return self.name .. " is studying"
+end
+
+local p = Person.new("Ali", 25)
+local s = Student.new("Sara", 20, "A")
+
+print(p:greet())
+print(s:greet())
+print(s:study())
+print("Age: " .. s:getAge())`,
+    comments: `-- هذا تعليق بسطر واحد
+
+--[[
+    هذا تعليق
+    متعدد الأسطر
+    في Lua
+--]]
+
+print("التعليقات لا تؤثر على الكود!")  -- تعليق في نهاية السطر`,
+    roblox1: `-- ⚠️ هذا كود Roblox - يعمل فقط في Roblox Studio
+-- مثال: طباعة اسم اللاعب
+
+local player = game.Players.LocalPlayer
+print("مرحباً " .. player.Name)
+
+-- الوصول لجزء في workspace
+local part = workspace:FindFirstChild("MyPart")
+if part then
+    print("وجدت الجزء: " .. part.Name)
+end
+
+-- تغيير خصائص
+local brick = workspace.Baseplate
+if brick then
+    brick.BrickColor = BrickColor.new("Bright red")
+end`,
+    event: `-- ⚠️ كود Roblox - Events
+local part = workspace:FindFirstChild("ClickPart")
+
+if part then
+    part.Touched:Connect(function(hit)
+        local character = hit.Parent
+        local player = game.Players:GetPlayerFromCharacter(character)
+        if player then
+            print(player.Name .. " لمس الجزء!")
+        end
+    end)
+end
+
+-- ClickDetector
+local clickDetector = part:FindFirstChild("ClickDetector")
+if clickDetector then
+    clickDetector.MouseClick:Connect(function(player)
+        print(player.Name .. " ضغط على الجزء!")
+    end)
+end`,
+    tween: `-- ⚠️ كود Roblox - Tweening
+local TweenService = game:GetService("TweenService")
+local part = workspace:FindFirstChild("MovingPart")
+
+if part then
+    local tweenInfo = TweenInfo.new(
+        2,                       -- المدة (ثواني)
+        Enum.EasingStyle.Quad,   -- النمط
+        Enum.EasingDirection.Out -- الاتجاه
+    )
+
+    local goal = {
+        Position = Vector3.new(10, 5, 0),
+        Color = Color3.fromRGB(255, 0, 0)
+    }
+
+    local tween = TweenService:Create(part, tweenInfo, goal)
+    tween:Play()
+
+    tween.Completed:Connect(function()
+        print("انتهى التحريك!")
+    end)
+end`,
+    remote: `-- ⚠️ كود Roblox - Remote Events
+-- Server Script
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local remoteEvent = ReplicatedStorage:WaitForChild("MyRemoteEvent")
+
+remoteEvent.OnServerEvent:Connect(function(player, message)
+    print(player.Name .. " أرسل: " .. message)
+    remoteEvent:FireClient(player, "تم الاستلام!")
+end)
+
+-- Client Script (LocalScript)
+--[[
+local remoteEvent = game.ReplicatedStorage:WaitForChild("MyRemoteEvent")
+
+remoteEvent:FireServer("مرحباً من العميل!")
+
+remoteEvent.OnClientEvent:Connect(function(response)
+    print("الرد من السيرفر: " .. response)
+end)
+--]]
+
+print("انظر للتعليقات في الكود أعلاه للـ Client Script")`
+};
+
+const codeEditor = document.getElementById('codeEditor');
+const output = document.getElementById('output');
+const lessonContent = document.getElementById('lessonContent');
+const currentLessonTitle = document.getElementById('currentLesson');
+
+document.querySelectorAll('.lesson-section h3').forEach(header => {
+    header.addEventListener('click', () => {
+        header.parentElement.classList.toggle('collapsed');
+    });
+});
+
+document.querySelectorAll('.lesson-list li').forEach(item => {
+    item.addEventListener('click', () => {
+        document.querySelectorAll('.lesson-list li').forEach(li => li.classList.remove('active'));
+        item.classList.add('active');
+        const lessonKey = item.dataset.lesson;
+        if (lessons[lessonKey]) {
+            lessonContent.innerHTML = lessons[lessonKey].content;
+            currentLessonTitle.textContent = lessons[lessonKey].title;
+        }
+    });
+});
+
+function loadExample(name) {
+    if (examples[name]) {
+        codeEditor.value = examples[name];
+        codeEditor.style.background = '#1e3a5f';
+        setTimeout(() => { codeEditor.style.background = '#0f172a'; }, 300);
+    }
+}
+
+function clearOutput() {
+    output.innerHTML = '<div class="output-line info">🚀 جاهز لتشغيل الكود...</div><div class="output-line info">─────────────────────────</div>';
+}
+
+function addOutput(type, text) {
+    const div = document.createElement('div');
+    div.className = 'output-line ' + type;
+    div.textContent = text;
+    output.appendChild(div);
+    output.scrollTop = output.scrollHeight;
+}
+
+function runCode() {
+    const code = codeEditor.value;
+    addOutput('input', '> تشغيل الكود...');
+    addOutput('info', '─────────────────────────');
+
+    try {
+        if (code.includes('game.Players') || code.includes('workspace.') || code.includes('TweenService') || code.includes('RemoteEvent') || code.includes('BrickColor')) {
+            if (code.includes('⚠️') || code.includes('Roblox')) {
+                addOutput('error', '⚠️ هذا كود Roblox - يتطلب بيئة Roblox Studio لتشغيله');
+                addOutput('info', '💡 في Roblox Studio، ضع هذا الكود في ServerScriptService أو StarterPlayerScripts');
+                return;
+            }
+        }
+        interpretLua(code);
+    } catch (e) {
+        addOutput('error', 'خطأ: ' + e.message);
+    }
+
+    addOutput('info', '─────────────────────────');
+    addOutput('info', '✅ انتهى التنفيذ');
+}
+
+function interpretLua(code) {
+    const lines = code.split('\n');
+    let variables = {};
+    let localVars = {};
+    let tables = {};
+    let functions = {};
+    let i = 0;
+
+    function evaluate(expr) {
+        expr = expr.trim();
+        if ((expr.startsWith('"') && expr.endsWith('"')) || (expr.startsWith("'") && expr.endsWith("'"))) {
+            return expr.slice(1, -1);
+        }
+        if (expr.startsWith('[[') && expr.endsWith(']]')) {
+            return expr.slice(2, -2);
+        }
+        if (!isNaN(parseFloat(expr)) && isFinite(expr)) {
+            return parseFloat(expr);
+        }
+        if (expr === 'true') return true;
+        if (expr === 'false') return false;
+        if (expr === 'nil') return null;
+        if (localVars.hasOwnProperty(expr)) return localVars[expr];
+        if (variables.hasOwnProperty(expr)) return variables[expr];
+        if (tables.hasOwnProperty(expr)) return tables[expr];
+
+        const dotMatch = expr.match(/^(.+)\.(.+)$/);
+        if (dotMatch) {
+            const tableName = dotMatch[1].trim();
+            const key = dotMatch[2].trim();
+            const table = tables[tableName] || variables[tableName] || localVars[tableName];
+            if (table && typeof table === 'object') return table[key];
+        }
+
+        const bracketMatch = expr.match(/^(.+)\[(.+)\]$/);
+        if (bracketMatch) {
+            const tableName = bracketMatch[1].trim();
+            const key = evaluate(bracketMatch[2].trim());
+            const table = tables[tableName] || variables[tableName] || localVars[tableName];
+            if (table && typeof table === 'object') return table[key];
+        }
+
+        if (expr.includes('..')) {
+            const parts = expr.split('..').map(p => evaluate(p.trim()));
+            return parts.join('');
+        }
+
+        try {
+            let evalExpr = expr;
+            for (let v in localVars) {
+                evalExpr = evalExpr.replace(new RegExp('\\b' + v + '\\b', 'g'), JSON.stringify(localVars[v]));
+            }
+            for (let v in variables) {
+                evalExpr = evalExpr.replace(new RegExp('\\b' + v + '\\b', 'g'), JSON.stringify(variables[v]));
+            }
+            evalExpr = evalExpr.replace(/~= /g, '!== ');
+            evalExpr = evalExpr.replace(/\/\/.*$/g, '');
+            if (/^[0-9+\-*/^%().\s]+$/.test(evalExpr)) {
+                evalExpr = evalExpr.replace(/\^/g, '**');
+                return Function('"use strict"; return (' + evalExpr + ')')();
+            }
+            return Function('"use strict"; return (' + evalExpr + ')')();
+        } catch(e) {
+            return expr;
+        }
+    }
+
+    while (i < lines.length) {
+        let line = lines[i].trim();
+        if (!line || line.startsWith('--')) { i++; continue; }
+        const commentIdx = line.indexOf(' --');
+        if (commentIdx > 0) line = line.substring(0, commentIdx).trim();
+        if (line.startsWith('--[[')) {
+            while (i < lines.length && !lines[i].includes(']]')) i++;
+            i++; continue;
+        }
+
+        if (line.startsWith('local ')) {
+            const rest = line.substring(6).trim();
+            if (rest.startsWith('function ')) {
+                const funcMatch = rest.match(/function\s+(\w+)\s*\(([^)]*)\)/);
+                if (funcMatch) {
+                    const funcName = funcMatch[1];
+                    const params = funcMatch[2].split(',').map(p => p.trim()).filter(p => p);
+                    let funcBody = [];
+                    i++;
+                    let depth = 1;
+                    while (i < lines.length && depth > 0) {
+                        const bodyLine = lines[i].trim();
+                        if (bodyLine.startsWith('function ') || bodyLine.startsWith('if ') || bodyLine.startsWith('for ') || bodyLine.startsWith('while ') || bodyLine.startsWith('repeat')) depth++;
+                        if (bodyLine === 'end') depth--;
+                        if (depth > 0) funcBody.push(lines[i]);
+                        i++;
+                    }
+                    localVars[funcName] = { type: 'function', params, body: funcBody };
+                    continue;
+                }
+            }
+            const tableMatch = rest.match(/^(\w+)\s*=\s*\{([^}]*)\}/);
+            if (tableMatch) {
+                const name = tableMatch[1];
+                const content = tableMatch[2];
+                const table = {};
+                if (content.trim()) {
+                    const items = content.split(',').map(s => s.trim()).filter(s => s);
+                    items.forEach((item, idx) => {
+                        if (item.includes('=')) {
+                            const [k, v] = item.split('=').map(s => s.trim());
+                            table[k] = evaluate(v);
+                        } else {
+                            table[idx + 1] = evaluate(item);
+                        }
+                    });
+                }
+                localVars[name] = table;
+                tables[name] = table;
+                i++;
+                continue;
+            }
+            if (rest.includes('=')) {
+                const eqIdx = rest.indexOf('=');
+                const names = rest.substring(0, eqIdx).split(',').map(n => n.trim());
+                const values = rest.substring(eqIdx + 1).split(',').map(v => evaluate(v.trim()));
+                names.forEach((name, idx) => {
+                    localVars[name] = values[idx] !== undefined ? values[idx] : null;
+                });
+            } else {
+                rest.split(',').forEach(n => { localVars[n.trim()] = null; });
+            }
+            i++;
+            continue;
+        }
+
+        if (line.startsWith('function ')) {
+            const funcMatch = line.match(/function\s+(\w+)\s*\(([^)]*)\)/);
+            if (funcMatch) {
+                const funcName = funcMatch[1];
+                const params = funcMatch[2].split(',').map(p => p.trim()).filter(p => p);
+                let funcBody = [];
+                i++;
+                let depth = 1;
+                while (i < lines.length && depth > 0) {
+                    const bodyLine = lines[i].trim();
+                    if (bodyLine.startsWith('function ') || bodyLine.startsWith('if ') || bodyLine.startsWith('for ') || bodyLine.startsWith('while ') || bodyLine.startsWith('repeat')) depth++;
+                    if (bodyLine === 'end') depth--;
+                    if (depth > 0) funcBody.push(lines[i]);
+                    i++;
+                }
+                functions[funcName] = { params, body: funcBody };
+                continue;
+            }
+        }
+
+        if (line.startsWith('if ')) {
+            const condition = line.substring(3).replace(/then$/, '').trim();
+            const condResult = evaluate(condition);
+            let ifBody = [];
+            let elseBody = [];
+            let inElse = false;
+            i++;
+            let depth = 1;
+            while (i < lines.length && depth > 0) {
+                const bodyLine = lines[i].trim();
+                if (bodyLine.startsWith('if ')) depth++;
+                if (bodyLine === 'end') {
+                    depth--;
+                    if (depth === 0) { i++; break; }
+                }
+                if (depth === 1 && bodyLine.startsWith('elseif ')) { inElse = true; i++; continue; }
+                if (depth === 1 && bodyLine === 'else') { inElse = true; i++; continue; }
+                if (depth > 0) {
+                    if (inElse) elseBody.push(lines[i]);
+                    else ifBody.push(lines[i]);
+                }
+                i++;
+            }
+            if (condResult) {
+                ifBody.forEach(bline => {
+                    const trimmed = bline.trim();
+                    if (trimmed.startsWith('print(')) {
+                        const arg = trimmed.substring(6, trimmed.length - 1);
+                        addOutput('output', evaluate(arg));
+                    }
+                });
+            } else {
+                elseBody.forEach(bline => {
+                    const trimmed = bline.trim();
+                    if (trimmed.startsWith('print(')) {
+                        const arg = trimmed.substring(6, trimmed.length - 1);
+                        addOutput('output', evaluate(arg));
+                    }
+                });
+            }
+            continue;
+        }
+
+        if (line.startsWith('for ')) {
+            const forMatch = line.match(/for\s+(\w+)\s*=\s*(.+)\s*,\s*(.+)\s+do/);
+            if (forMatch) {
+                const varName = forMatch[1];
+                const start = evaluate(forMatch[2]);
+                const end = evaluate(forMatch[3]);
+                let loopBody = [];
+                i++;
+                while (i < lines.length && lines[i].trim() !== 'end') {
+                    loopBody.push(lines[i]);
+                    i++;
+                }
+                i++;
+                for (let j = start; j <= end; j++) {
+                    localVars[varName] = j;
+                    loopBody.forEach(bline => {
+                        const trimmed = bline.trim();
+                        if (trimmed.startsWith('print(')) {
+                            const arg = trimmed.substring(6, trimmed.length - 1);
+                            let result = evaluate(arg);
+                            if (typeof result === 'string') {
+                                result = result.replace(new RegExp('\\.\\.' + varName, 'g'), j.toString());
+                                result = result.replace(new RegExp(varName + '\\.\\.', 'g'), j.toString());
+                            }
+                            addOutput('output', result);
+                        }
+                    });
+                }
+                continue;
+            }
+            const pairsMatch = line.match(/for\s+(\w+),?\s*(\w*)?\s+in\s+pairs\((.+)\)\s+do/);
+            if (pairsMatch) {
+                const keyVar = pairsMatch[1];
+                const valVar = pairsMatch[2] || '';
+                const tableName = pairsMatch[3];
+                const table = tables[tableName] || variables[tableName] || localVars[tableName] || {};
+                let loopBody = [];
+                i++;
+                while (i < lines.length && lines[i].trim() !== 'end') {
+                    loopBody.push(lines[i]);
+                    i++;
+                }
+                i++;
+                for (let k in table) {
+                    if (valVar) localVars[valVar] = table[k];
+                    localVars[keyVar] = k;
+                    loopBody.forEach(bline => {
+                        const trimmed = bline.trim();
+                        if (trimmed.startsWith('print(')) {
+                            const arg = trimmed.substring(6, trimmed.length - 1);
+                            addOutput('output', evaluate(arg));
+                        }
+                    });
+                }
+                continue;
+            }
+            const ipairsMatch = line.match(/for\s+(\w+),\s*(\w+)\s+in\s+ipairs\((.+)\)\s+do/);
+            if (ipairsMatch) {
+                const idxVar = ipairsMatch[1];
+                const valVar = ipairsMatch[2];
+                const tableName = ipairsMatch[3];
+                const table = tables[tableName] || variables[tableName] || localVars[tableName] || {};
+                let loopBody = [];
+                i++;
+                while (i < lines.length && lines[i].trim() !== 'end') {
+                    loopBody.push(lines[i]);
+                    i++;
+                }
+                i++;
+                let idx = 1;
+                while (table[idx] !== undefined) {
+                    localVars[idxVar] = idx;
+                    localVars[valVar] = table[idx];
+                    loopBody.forEach(bline => {
+                        const trimmed = bline.trim();
+                        if (trimmed.startsWith('print(')) {
+                            const arg = trimmed.substring(6, trimmed.length - 1);
+                            addOutput('output', evaluate(arg));
+                        }
+                    });
+                    idx++;
+                }
+                continue;
+            }
+        }
+
+        if (line.startsWith('while ')) {
+            const condition = line.substring(6).replace(/do$/, '').trim();
+            let loopBody = [];
+            i++;
+            while (i < lines.length && lines[i].trim() !== 'end') {
+                loopBody.push(lines[i]);
+                i++;
+            }
+            i++;
+            let safety = 0;
+            while (evaluate(condition) && safety < 100) {
+                safety++;
+                loopBody.forEach(bline => {
+                    const trimmed = bline.trim();
+                    if (trimmed.startsWith('print(')) {
+                        const arg = trimmed.substring(6, trimmed.length - 1);
+                        addOutput('output', evaluate(arg));
+                    }
+                    if (trimmed.includes('=') && !trimmed.startsWith('local')) {
+                        const eqIdx = trimmed.indexOf('=');
+                        const name = trimmed.substring(0, eqIdx).trim();
+                        const val = evaluate(trimmed.substring(eqIdx + 1).trim());
+                        if (localVars.hasOwnProperty(name)) localVars[name] = val;
+                        else variables[name] = val;
+                    }
+                });
+            }
+            continue;
+        }
+
+        if (line.startsWith('repeat')) {
+            let loopBody = [];
+            i++;
+            while (i < lines.length && !lines[i].trim().startsWith('until ')) {
+                loopBody.push(lines[i]);
+                i++;
+            }
+            const untilLine = lines[i].trim();
+            const condition = untilLine.substring(6).trim();
+            i++;
+            let safety = 0;
+            do {
+                safety++;
+                loopBody.forEach(bline => {
+                    const trimmed = bline.trim();
+                    if (trimmed.startsWith('print(')) {
+                        const arg = trimmed.substring(6, trimmed.length - 1);
+                        addOutput('output', evaluate(arg));
+                    }
+                });
+            } while (!evaluate(condition) && safety < 100);
+            continue;
+        }
+
+        if (line.includes('=') && !line.startsWith('if') && !line.startsWith('for') && !line.startsWith('while')) {
+            const eqIdx = line.indexOf('=');
+            const name = line.substring(0, eqIdx).trim();
+            const value = line.substring(eqIdx + 1).trim();
+            if (name.includes('.')) {
+                const parts = name.split('.');
+                const tableName = parts[0];
+                const key = parts[1];
+                const table = tables[tableName] || variables[tableName] || localVars[tableName];
+                if (table && typeof table === 'object') {
+                    table[key] = evaluate(value);
+                }
+            } else if (name.includes('[')) {
+                const bracketMatch = name.match(/^(.+)\[(.+)\]$/);
+                if (bracketMatch) {
+                    const tableName = bracketMatch[1].trim();
+                    const key = evaluate(bracketMatch[2].trim());
+                    const table = tables[tableName] || variables[tableName] || localVars[tableName];
+                    if (table && typeof table === 'object') {
+                        table[key] = evaluate(value);
+                    }
+                }
+            } else {
+                if (localVars.hasOwnProperty(name)) {
+                    localVars[name] = evaluate(value);
+                } else {
+                    variables[name] = evaluate(value);
+                }
+            }
+            i++;
+            continue;
+        }
+
+        if (line.startsWith('print(')) {
+            const arg = line.substring(6, line.length - 1);
+            const result = evaluate(arg);
+            addOutput('output', result);
+            i++;
+            continue;
+        }
+
+        const funcCallMatch = line.match(/^(\w+)\s*\(([^)]*)\)$/);
+        if (funcCallMatch && functions[funcCallMatch[1]]) {
+            const funcName = funcCallMatch[1];
+            const args = funcCallMatch[2].split(',').map(a => evaluate(a.trim()));
+            const func = functions[funcName];
+            const savedVars = {...localVars};
+            func.params.forEach((p, idx) => {
+                localVars[p] = args[idx];
+            });
+            func.body.forEach(bline => {
+                const trimmed = bline.trim();
+                if (trimmed.startsWith('return ')) {
+                    const ret = evaluate(trimmed.substring(7));
+                    addOutput('output', ret);
+                } else if (trimmed.startsWith('print(')) {
+                    const arg = trimmed.substring(6, trimmed.length - 1);
+                    addOutput('output', evaluate(arg));
+                }
+            });
+            localVars = savedVars;
+            i++;
+            continue;
+        }
+
+        if (line.startsWith('type(')) {
+            const arg = line.substring(5, line.length - 1);
+            const val = evaluate(arg);
+            let typeName = typeof val;
+            if (val === null) typeName = 'nil';
+            if (Array.isArray(val) || (typeof val === 'object' && val !== null)) typeName = 'table';
+            if (typeof val === 'boolean') typeName = 'boolean';
+            addOutput('output', typeName);
+            i++;
+            continue;
+        }
+
+        if (line.startsWith('tostring(')) {
+            const arg = line.substring(9, line.length - 1);
+            addOutput('output', String(evaluate(arg)));
+            i++;
+            continue;
+        }
+
+        if (line.includes('string.')) {
+            const strMatch = line.match(/string\.(\w+)\(([^)]+)\)/);
+            if (strMatch) {
+                const func = strMatch[1];
+                const args = strMatch[2].split(',').map(a => evaluate(a.trim()));
+                let result;
+                if (func === 'upper') result = String(args[0]).toUpperCase();
+                else if (func === 'lower') result = String(args[0]).toLowerCase();
+                else if (func === 'gsub') result = String(args[0]).replace(new RegExp(args[1], 'g'), args[2]);
+                else if (func === 'sub') result = String(args[0]).substring(args[1] - 1, args[2]);
+                else if (func === 'len') result = String(args[0]).length;
+                else if (func === 'find') result = String(args[0]).indexOf(args[1]) + 1;
+                else if (func === 'format') result = args[0].replace(/%s/g, () => args[1]).replace(/%d/g, () => args[1]);
+                else result = line;
+                if (line.startsWith('print(')) {
+                    addOutput('output', result);
+                }
+            }
+            i++;
+            continue;
+        }
+
+        if (line.includes('math.')) {
+            const mathMatch = line.match(/math\.(\w+)\(([^)]*)\)/);
+            if (mathMatch) {
+                const func = mathMatch[1];
+                const args = mathMatch[2] ? mathMatch[2].split(',').map(a => evaluate(a.trim())) : [];
+                let result;
+                if (func === 'sqrt') result = Math.sqrt(args[0]);
+                else if (func === 'random') result = args.length > 1 ? Math.floor(Math.random() * (args[1] - args[0] + 1)) + args[0] : Math.random();
+                else if (func === 'floor') result = Math.floor(args[0]);
+                else if (func === 'ceil') result = Math.ceil(args[0]);
+                else if (func === 'abs') result = Math.abs(args[0]);
+                else if (func === 'max') result = Math.max(...args);
+                else if (func === 'min') result = Math.min(...args);
+                else if (func === 'pi') result = Math.PI;
+                else if (func === 'sin') result = Math.sin(args[0]);
+                else if (func === 'cos') result = Math.cos(args[0]);
+                else if (func === 'tan') result = Math.tan(args[0]);
+                else if (func === 'rad') result = args[0] * Math.PI / 180;
+                else if (func === 'deg') result = args[0] * 180 / Math.PI;
+                else result = 'math.' + func;
+                if (line.startsWith('print(')) {
+                    addOutput('output', result);
+                }
+            } else if (line.includes('math.pi')) {
+                if (line.startsWith('print(')) {
+                    addOutput('output', Math.PI);
+                }
+            }
+            i++;
+            continue;
+        }
+
+        if (line.includes('table.')) {
+            const tableMatch = line.match(/table\.(\w+)\(([^)]+)\)/);
+            if (tableMatch) {
+                const func = tableMatch[1];
+                const args = tableMatch[2].split(',').map(a => evaluate(a.trim()));
+                let result;
+                if (func === 'concat') {
+                    const arr = args[0];
+                    const sep = args[1] || ', ';
+                    if (Array.isArray(arr)) result = arr.join(sep);
+                    else result = Object.values(arr).join(sep);
+                } else if (func === 'insert') {
+                    const arr = args[0];
+                    const val = args[1];
+                    if (Array.isArray(arr)) arr.push(val);
+                    result = arr;
+                } else if (func === 'remove') {
+                    const arr = args[0];
+                    const idx = args[1];
+                    if (Array.isArray(arr)) result = arr.splice(idx - 1, 1)[0];
+                } else if (func === 'sort') {
+                    const arr = args[0];
+                    if (Array.isArray(arr)) arr.sort((a, b) => a - b);
+                    result = arr;
+                } else {
+                    result = line;
+                }
+                if (line.startsWith('print(')) {
+                    addOutput('output', result);
+                }
+            }
+            i++;
+            continue;
+        }
+
+        if (line.includes('setmetatable')) {
+            const metaMatch = line.match(/setmetatable\(([^,]+),\s*(\w+)\)/);
+            if (metaMatch) {
+                const tableName = metaMatch[1].trim();
+                const metaName = metaMatch[2].trim();
+                if (tables[metaName]) {
+                    if (tables[tableName]) {
+                        tables[tableName].__metatable = tables[metaName];
+                    } else if (localVars[tableName]) {
+                        localVars[tableName].__metatable = tables[metaName];
+                    }
+                }
+            }
+            i++;
+            continue;
+        }
+
+        if (line.includes('coroutine.')) {
+            const coMatch = line.match(/coroutine\.(\w+)\(([^)]*)\)/);
+            if (coMatch) {
+                const func = coMatch[1];
+                if (func === 'create') {
+                    addOutput('info', '🧵 Coroutine created (simulated)');
+                } else if (func === 'resume') {
+                    addOutput('info', '🧵 Coroutine resumed (simulated)');
+                } else if (func === 'yield') {
+                    addOutput('info', '🧵 Coroutine yielded (simulated)');
+                }
+            }
+            i++;
+            continue;
+        }
+
+        i++;
+    }
+}
+</script>
+</body>
+</html>
