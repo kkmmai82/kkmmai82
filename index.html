@@ -1,9 +1,22 @@
-<!DOCTYPE html>
+
+# Let's analyze the WeAreDevs obfuscator patterns from the research
+# and build the enhanced decryptor
+
+# First, let me understand the patterns:
+# 1. WeAreDevs uses Prometheus Lua Obfuscator (open source)
+# 2. It uses: string encoding/escaping (\056\068...), variable renaming, numeric manipulations
+# 3. It wraps code in: return(function(...)local X={"..."};...end)(...)
+# 4. The strings are octal escape sequences like \056\068\115...
+# 5. It uses table-based lookups and concatenations
+
+# Let me create the enhanced HTML file with WeAreDevs v1.0.0 + LuaObfuscator support
+
+html_content = '''<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تعلم Lua - المحرر التفاعلي</title>
+    <title>تعلم Lua - المحرر التفاعلي + فك التشفير المتقدم</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -51,13 +64,13 @@
         .visual-var-type { color: #94a3b8; font-size: 10px; background: #334155; padding: 1px 6px; border-radius: 3px; }
         .visual-var-value { color: #22c55e; margin-right: auto; }
         .visual-code-line { padding: 2px 0; font-family: 'Fira Code', monospace; font-size: 12px; }
-        .kw { color: #c678dd; } /* keyword */
-        .func { color: #61afef; } /* function */
-        .str { color: #98c379; } /* string */
-        .num { color: #d19a66; } /* number */
-        .cm { color: #5c6370; font-style: italic; } /* comment */
-        .var { color: #e06c75; } /* variable */
-        .op { color: #56b6c2; } /* operator */
+        .kw { color: #c678dd; }
+        .func { color: #61afef; }
+        .str { color: #98c379; }
+        .num { color: #d19a66; }
+        .cm { color: #5c6370; font-style: italic; }
+        .var { color: #e06c75; }
+        .op { color: #56b6c2; }
         .lesson-content { background: #1e293b; padding: 15px 20px; border-bottom: 1px solid #334155; max-height: 180px; overflow-y: auto; }
         .lesson-content h3 { color: #fbbf24; margin-bottom: 8px; font-size: 15px; }
         .lesson-content p { color: #cbd5e1; line-height: 1.8; font-size: 13px; }
@@ -107,15 +120,27 @@
         .decrypt-option.active { background: #0ea5e9; color: white; border-color: #38bdf8; }
         .decrypt-key-input { background: #0f172a; border: 1px solid #475569; color: #e2e8f0; padding: 6px 10px; border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 12px; width: 100%; margin-bottom: 8px; direction: ltr; }
         .decrypt-key-input:focus { outline: none; border-color: #38bdf8; }
+        .obfuscator-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-right: 6px; }
+        .badge-wearedevs { background: #dc2626; color: white; }
+        .badge-luaobf { background: #2563eb; color: white; }
+        .badge-base64 { background: #7c3aed; color: white; }
+        .badge-xor { background: #ea580c; color: white; }
+        .badge-hex { background: #059669; color: white; }
+        .badge-plain { background: #475569; color: white; }
+        .decrypt-log { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 8px; margin-bottom: 10px; font-family: 'Fira Code', monospace; font-size: 10px; color: #94a3b8; max-height: 150px; overflow-y: auto; }
+        .decrypt-log-line { margin: 1px 0; }
+        .decrypt-log-line.try { color: #fbbf24; }
+        .decrypt-log-line.success { color: #22c55e; }
+        .decrypt-log-line.fail { color: #ef4444; }
+        .decrypt-log-line.info { color: #38bdf8; }
 </style>
-<base target="_blank">
 <base target="_blank">
 </head>
 <body>
     <div class="container">
         <div class="sidebar">
             <h1>🌙 Lua</h1>
-            <div class="subtitle">المحرر التفاعلي + فك التشفير</div>
+            <div class="subtitle">المحرر التفاعلي + فك التشفير المتقدم</div>
             <div class="lesson-section" data-section="control">
                 <h3>🔀 التحكم <span class="arrow">▼</span></h3>
                 <ul class="lesson-list">
@@ -134,11 +159,20 @@
                     <li data-lesson="string-patterns">الأنماط (Patterns)</li>
                 </ul>
             </div>
+            <div class="lesson-section" data-section="obfuscation">
+                <h3>🔓 فك التشفير <span class="arrow">▼</span></h3>
+                <ul class="lesson-list">
+                    <li data-lesson="wearedevs">WeAreDevs Obfuscator</li>
+                    <li data-lesson="luaobfuscator">LuaObfuscator.com</li>
+                    <li data-lesson="methods">طرق التشفير</li>
+                </ul>
+            </div>
         </div>
         <div class="main-content">
             <div class="lesson-content" id="lessonContent">
-                <h3>👋 أهلاً بك في محرر Lua التفاعلي!</h3>
+                <h3>👋 أهلاً بك في محرر Lua التفاعلي المتقدم!</h3>
                 <p>اكتب كود Lua في المحرر واضغط ▶️ تشغيل. أو اضغط 🔓 فك التشفير لو عندك سكربت مشفر.</p>
+                <p>الأداة تدعم فك تشفير: <span class="obfuscator-badge badge-wearedevs">WeAreDevs v1.0.0</span> <span class="obfuscator-badge badge-luaobf">LuaObfuscator.com</span> <span class="obfuscator-badge badge-base64">Base64</span> <span class="obfuscator-badge badge-xor">XOR</span> <span class="obfuscator-badge badge-hex">Hex</span></p>
                 <div class="examples">
                     <button class="example-btn" onclick="loadExample('hello')">👋 Hello World</button>
                     <button class="example-btn" onclick="loadExample('variables')">📦 متغيرات</button>
@@ -203,7 +237,10 @@ const lessons = {
     'strings-basics': { title: "أساسيات النصوص", content: `<h3>📝 أساسيات النصوص في Lua</h3><p>يمكن تعريف النصوص بـ: <code>"نص"</code> أو <code>'نص'</code> أو <code>[[نص متعدد الأسطر]]</code></p><p>دمج النصوص: <code>..</code> — طول النص: <code>#</code></p><div class="examples"><button class="example-btn" onclick="loadExample('string')">📝 أمثلة نصوص</button><button class="example-btn" onclick="loadExample('string2')">📝 نصوص متعددة</button></div>` },
     'string-functions': { title: "دوال النصوص", content: `<h3>🔤 دوال النصوص في Lua</h3><p><code>string.upper()</code> — <code>string.lower()</code> — <code>string.len()</code></p><p><code>string.sub()</code> — <code>string.find()</code> — <code>string.gsub()</code></p><div class="examples"><button class="example-btn" onclick="loadExample('stringfuncs')">🔤 دوال النصوص</button><button class="example-btn" onclick="loadExample('stringfind')">🔤 البحث والاستبدال</button></div>` },
     'string-format': { title: "تنسيق النصوص", content: `<h3>📋 تنسيق النصوص في Lua</h3><p><code>string.format("%s", name)</code> — تنسيق بـ %s, %d, %f</p><p><code>string.format("%.2f", 3.14159)</code> — عدد عشري بمنزلتين</p><div class="examples"><button class="example-btn" onclick="loadExample('stringformat')">📋 تنسيق النصوص</button></div>` },
-    'string-patterns': { title: "الأنماط (Patterns)", content: `<h3>🔍 الأنماط في Lua</h3><p>Lua تستخدم patterns مش regex:</p><p><code>%a</code> حرف — <code>%d</code> رقم — <code>%s</code> مسافة — <code>%w</code> حرف أو رقم</p><div class="examples"><button class="example-btn" onclick="loadExample('patterns')">🔍 أمثلة Patterns</button></div>` }
+    'string-patterns': { title: "الأنماط (Patterns)", content: `<h3>🔍 الأنماط في Lua</h3><p>Lua تستخدم patterns مش regex:</p><p><code>%a</code> حرف — <code>%d</code> رقم — <code>%s</code> مسافة — <code>%w</code> حرف أو رقم</p><div class="examples"><button class="example-btn" onclick="loadExample('patterns')">🔍 أمثلة Patterns</button></div>` },
+    wearedevs: { title: "WeAreDevs Obfuscator", content: `<h3>🔓 WeAreDevs Obfuscator v1.0.0</h3><p>يستخدم <strong>Prometheus Lua Obfuscator</strong> (مفتوح المصدر).</p><p>التقنيات: escape sequences (\\056\\068...), variable renaming, numeric manipulations, table lookups, wrapping functions.</p><p>الهيكل: <code>--[[ v1.0.0 https://wearedevs.net/obfuscator ]] return(function(...)local X={...};...end)(...)</code></p><p>الأداة تدعم فك: octal escapes, string concatenations, table lookups, واستخراج الأكواد المقروءة.</p>` },
+    luaobfuscator: { title: "LuaObfuscator.com", content: `<h3>🔓 LuaObfuscator.com</h3><p>يستخدم تقنيات: Hex strings, Base64 encoding, XOR encryption, string.char sequences.</p><p>الأداة تدعم فك: hex strings, base64 loadstring, string.char evaluation, XOR decryption.</p><p>جرب لصق الكود المشفر والضغط على "فك التشفير".</p>` },
+    methods: { title: "طرق التشفير", content: `<h3>🔐 طرق التشفير المدعومة</h3><p><span class="obfuscator-badge badge-wearedevs">WeAreDevs</span> Octal escapes + Prometheus</p><p><span class="obfuscator-badge badge-luaobf">LuaObfuscator</span> Hex + Base64 + XOR</p><p><span class="obfuscator-badge badge-base64">Base64</span> Direct / loadstring</p><p><span class="obfuscator-badge badge-xor">XOR</span> مع مفاتيح شائعة</p><p><span class="obfuscator-badge badge-hex">Hex</span> Hexadecimal encoding</p><p><span class="obfuscator-badge badge-plain">Plain</span> كود عادي (غير مشفر)</p>` }
 };
 
 const examples = {
@@ -417,7 +454,7 @@ Lua لغة جميلة
 
 print(poem)
 
-local quote = "He said \"Hello\""
+local quote = "He said \\"Hello\\""
 print(quote)`,
     stringfuncs: `-- دوال النصوص
 local text = "Hello World"
@@ -491,6 +528,10 @@ function switchTab(tab, clickedEl) {
     document.getElementById('tab-' + tab).classList.add('active');
 }
 
+// ============================
+// DECRYPTION ENGINE - Enhanced
+// ============================
+
 // Base64 decoder
 function base64Decode(str) {
     try {
@@ -509,25 +550,30 @@ function xorDecrypt(str, key) {
     return result;
 }
 
-// Enhanced Lua deobfuscator - supports LuaObfuscator.com
-
 // Hex decoder
 function hexDecode(hex) {
     let str = '';
-    hex = hex.replace(/\s/g, '');
+    hex = hex.replace(/\\s/g, '');
     for (let i = 0; i < hex.length; i += 2) {
         str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
     }
     return str;
 }
 
+// Octal decoder (for WeAreDevs)
+function octalDecode(str) {
+    return str.replace(/\\\\(\\d{3})/g, (match, oct) => {
+        return String.fromCharCode(parseInt(oct, 8));
+    });
+}
+
 // Evaluate string.char sequences
 function evalStringChar(str) {
-    str = str.replace(/string\.char\s*\(\s*(\d+(?:\s*,\s*\d+)*)\s*\)/g, (match, nums) => {
+    str = str.replace(/string\\.char\\s*\\(\\s*(\\d+(?:\\s*,\\s*\\d+)*\\s*)\\)/g, (match, nums) => {
         const chars = nums.split(',').map(n => String.fromCharCode(parseInt(n.trim())));
         return '"' + chars.join('') + '"';
     });
-    str = str.replace(/string\.char\s*\(\s*(\d+)\s*\)/g, (match, num) => {
+    str = str.replace(/string\\.char\\s*\\(\\s*(\\d+)\\s*\\)/g, (match, num) => {
         return '"' + String.fromCharCode(parseInt(num)) + '"';
     });
     return str;
@@ -540,7 +586,7 @@ function evalConcat(str) {
     let iterations = 0;
     do {
         prev = str;
-        str = str.replace(/(["'])([^"']*)\1\s*\.\.\s*(["'])([^"']*)\3/g, (match, q1, s1, q2, s2) => {
+        str = str.replace(/(["'])([^"']*)\\1\\s*\\.\\.\\s*(["'])([^"']*)\\3/g, (match, q1, s1, q2, s2) => {
             return q1 + s1 + s2 + q1;
         });
         iterations++;
@@ -552,9 +598,9 @@ function evalConcat(str) {
 function extractStrings(code) {
     const strings = [];
     const patterns = [
-        /"((?:[^"\\]|\\.)*)"/g,
-        /'((?:[^'\\]|\\.)*)'/g,
-        /\[\[([\s\S]*?)\]\]/g
+        /"((?:[^"\\\\]|\\\\.)*)"/g,
+        /'((?:[^'\\\\]|\\\\.)*)'/g,
+        /\\[\\[([\\s\\S]*?)\\]\\]/g
     ];
     patterns.forEach(regex => {
         let match;
@@ -565,62 +611,189 @@ function extractStrings(code) {
     return strings;
 }
 
-function decryptLua(code, userKey) {
-    let result = { success: false, method: '', original: '', error: '', details: [] };
+// Check if code looks like valid Lua
+function isValidLua(code) {
+    return /(\\bfunction\\b|\\blocal\\b|\\bprint\\b|\\bif\\b|\\bfor\\b|\\bwhile\\b|\\bend\\b|\\breturn\\b|\\bthen\\b|\\bdo\\b)/.test(code);
+}
+
+// ============================
+// WeAreDevs v1.0.0 Detection & Decryption
+// ============================
+
+function isWeAreDevs(code) {
+    return /\\[\\[\\s*v1\\.0\\.0\\s*https:\\/\\/wearedevs\\.net\\/obfuscator\\s*\\]\\]/i.test(code) ||
+           /wearedevs/i.test(code);
+}
+
+function decryptWeAreDevs(code) {
+    let result = { success: false, method: '', original: '', details: [], log: [] };
     let working = code.trim();
-
-    if (!working) {
-        result.error = 'الكود فارغ';
-        return result;
+    
+    function log(msg, type = 'info') {
+        result.log.push({ msg, type });
     }
-
-    // Helper: add detail
-    function addDetail(method, content) {
-        result.details.push({ method, content: content.substring(0, 2000) });
+    
+    log('🔍 فحص WeAreDevs Obfuscator v1.0.0...', 'info');
+    
+    // Pattern 1: Extract octal escape sequences from table
+    const octalPattern = /"(\\\\\\d{3}(\\\\\\d{3})*)"\\s*;?/g;
+    let octalMatches = [];
+    let match;
+    while ((match = octalPattern.exec(working)) !== null) {
+        octalMatches.push(match[1]);
     }
-
-    // ============================================
-    // PASS 1: Resolve string.char and concatenations
-    // ============================================
-    let attempt = working;
-    let prev;
-    let passCount = 0;
-    do {
-        prev = attempt;
-        attempt = evalStringChar(attempt);
-        attempt = evalConcat(attempt);
-        passCount++;
-    } while (attempt !== prev && passCount < 10);
-
-    if (attempt !== working) {
-        addDetail('string.char + concatenation', attempt);
-        const hasLuaSyntax = /(\bfunction\b|\blocal\b|\bprint\b|\bif\b|\bfor\b|\bwhile\b|\bend\b)/.test(attempt);
-        const hasUrl = /https?:\/\/[^\s"')]+/.test(attempt);
-        if (hasLuaSyntax || hasUrl) {
+    
+    if (octalMatches.length > 0) {
+        log('✅ تم العثور على ' + octalMatches.length + ' سلسلة octal escape', 'success');
+        
+        let decodedStrings = [];
+        octalMatches.forEach((octStr, idx) => {
+            try {
+                const decoded = octalDecode('"' + octStr + '"');
+                if (decoded && decoded.length > 0) {
+                    decodedStrings.push(decoded);
+                    log('  📝 سلسلة ' + (idx + 1) + ': ' + decoded.substring(0, 50) + (decoded.length > 50 ? '...' : ''), 'success');
+                }
+            } catch(e) {
+                log('  ❌ فشل فك سلسلة ' + (idx + 1), 'fail');
+            }
+        });
+        
+        if (decodedStrings.length > 0) {
+            // Try to reconstruct the code from decoded strings
+            let reconstructed = decodedStrings.join('');
+            
+            // Try to find the actual payload
+            const payloadPatterns = [
+                /return\\s*\\(function\\s*\\(\\.\\.\\.\\)/,
+                /loadstring\\s*\\(/,
+                /load\\s*\\(/,
+                /local\\s+\\w+\\s*=\\s*\\{/
+            ];
+            
+            let foundPayload = false;
+            payloadPatterns.forEach(p => {
+                if (p.test(reconstructed)) foundPayload = true;
+            });
+            
+            if (foundPayload || isValidLua(reconstructed)) {
+                result.success = true;
+                result.method = 'WeAreDevs v1.0.0 (Octal Escapes)';
+                result.original = reconstructed;
+                result.details.push({ method: 'Octal Escapes', content: reconstructed });
+                log('✅ تم فك التشفير بنجاح!', 'success');
+                return result;
+            }
+            
+            // If not valid Lua, show extracted strings
             result.success = true;
-            result.method = 'string.char + concatenation';
-            result.original = attempt;
+            result.method = 'WeAreDevs v1.0.0 (Partial - Octal Escapes)';
+            result.original = '=== WeAreDevs v1.0.0 Obfuscation ===\\n\\n' +
+                'الكود يستخدم تشفير WeAreDevs Obfuscator v1.0.0 (Prometheus)\\n\\n' +
+                '=== السلاسل المفكوكة ===\\n' +
+                decodedStrings.map((s, i) => `[${i+1}] ${s}`).join('\\n---\\n') +
+                '\\n\\n=== ملاحظة ===\\n' +
+                'التشفير يستخدم Prometheus VM Obfuscator.\\n' +
+                'قد تحتاج أداة خارجية لفك التشفير الكامل.';
+            log('⚠️ فك جزئي - يحتاج أداة خارجية للفك الكامل', 'info');
             return result;
         }
     }
+    
+    // Pattern 2: Look for numeric escape sequences in decimal format
+    const decimalEscapePattern = /"(\\d{3}(\\d{3})*)"\\s*;?/g;
+    let decimalMatches = [];
+    while ((match = decimalEscapePattern.exec(working)) !== null) {
+        // Check if it looks like octal (digits 0-7)
+        if (/^[0-7]+$/.test(match[1])) {
+            decimalMatches.push(match[1]);
+        }
+    }
+    
+    if (decimalMatches.length > 0) {
+        log('✅ تم العثور على ' + decimalMatches.length + ' سلسلة رقمية', 'success');
+        let decodedStrings = [];
+        decimalMatches.forEach((numStr, idx) => {
+            try {
+                let decoded = '';
+                for (let i = 0; i < numStr.length; i += 3) {
+                    const oct = numStr.substr(i, 3);
+                    decoded += String.fromCharCode(parseInt(oct, 8));
+                }
+                if (decoded.length > 0) {
+                    decodedStrings.push(decoded);
+                    log('  📝 سلسلة ' + (idx + 1) + ': ' + decoded.substring(0, 50), 'success');
+                }
+            } catch(e) {}
+        });
+        
+        if (decodedStrings.length > 0) {
+            result.success = true;
+            result.method = 'WeAreDevs v1.0.0 (Numeric Escapes)';
+            result.original = decodedStrings.join('\\n');
+            return result;
+        }
+    }
+    
+    // Pattern 3: Extract readable strings from obfuscated code
+    const allStrings = extractStrings(working);
+    const readableStrings = allStrings.filter(s => {
+        return s.length > 3 && 
+               /^[\\x20-\\x7E\\u0600-\\u06FF]+$/.test(s) &&
+               !/^[0-9\\\\]+$/.test(s);
+    });
+    
+    if (readableStrings.length > 0) {
+        log('✅ تم استخراج ' + readableStrings.length + ' نص مقروء', 'success');
+        result.success = true;
+        result.method = 'WeAreDevs v1.0.0 (String Extraction)';
+        result.original = '=== WeAreDevs v1.0.0 - النصوص المستخرجة ===\\n\\n' +
+            readableStrings.slice(0, 30).join('\\n') +
+            '\\n\\n=== ملاحظة ===\\n' +
+            'هذا الكود مشفر بـ Prometheus VM Obfuscator.\\n' +
+            'النصوص المستخرجة قد تحتوي على أجزاء من الكود الأصلي.';
+        return result;
+    }
+    
+    log('❌ لم يتم التعرف على نمط WeAreDevs', 'fail');
+    return result;
+}
 
-    // ============================================
-    // PASS 2: LuaObfuscator.com - Hex string pattern
-    // ============================================
-    const obfPatterns = [
-        /v\d+\s*\(\s*["']([A-Fa-f0-9]{100,})["']\s*,\s*v\d+\s*\(\s*\)/,
-        /["']([A-Fa-f0-9]{200,})["']/,
-        /load\s*\(\s*["']([A-Fa-f0-9]+)["']/,
-        /loadstring\s*\(\s*["']([A-Fa-f0-9]+)["']/
+// ============================
+// LuaObfuscator.com Detection & Decryption
+// ============================
+
+function isLuaObfuscator(code) {
+    return /luaobfuscator/i.test(code) ||
+           /loadstring\\s*\\(\\s*["']?[A-Fa-f0-9]{100,}["']?/i.test(code) ||
+           /["']([A-Fa-f0-9]{200,})["']/i.test(code);
+}
+
+function decryptLuaObfuscator(code) {
+    let result = { success: false, method: '', original: '', details: [], log: [] };
+    let working = code.trim();
+    
+    function log(msg, type = 'info') {
+        result.log.push({ msg, type });
+    }
+    
+    log('🔍 فحص LuaObfuscator.com...', 'info');
+    
+    // Pattern 1: Hex string in loadstring
+    const hexLoadPatterns = [
+        /loadstring\\s*\\(\\s*["']([A-Fa-f0-9]{100,})["']\\s*\\)/i,
+        /load\\s*\\(\\s*["']([A-Fa-f0-9]{100,})["']\\s*\\)/i,
+        /["']([A-Fa-f0-9]{200,})["']/i
     ];
-
-    for (let pattern of obfPatterns) {
+    
+    for (let pattern of hexLoadPatterns) {
         const match = working.match(pattern);
         if (match) {
-            const hexString = match[1];
+            log('✅ تم العثور على hex string (طول: ' + match[1].length + ')', 'success');
             try {
-                const decoded = hexDecode(hexString);
+                const decoded = hexDecode(match[1]);
                 if (decoded && decoded.length > 0) {
+                    // Extract readable parts
                     const readableParts = [];
                     let current = '';
                     for (let i = 0; i < decoded.length; i++) {
@@ -633,1104 +806,318 @@ function decryptLua(code, userKey) {
                         }
                     }
                     if (current.length > 3) readableParts.push(current);
+                    
                     if (readableParts.length > 0) {
                         result.success = true;
-                        result.method = 'LuaObfuscator.com (hex extraction)';
-                        result.original = '=== LuaObfuscator.com Obfuscation ===\n\n' +
-                            'الكود يستخدم تشفير LuaObfuscator.com\n\n' +
-                            '=== الأجزاء المقروءة المستخرجة ===\n' +
-                            readableParts.join('\n---\n') +
-                            '\n\n=== معلومات تقنية ===\n' +
-                            'طول الـ hex: ' + hexString.length + ' حرف\n' +
+                        result.method = 'LuaObfuscator.com (Hex Extraction)';
+                        result.original = '=== LuaObfuscator.com Obfuscation ===\\n\\n' +
+                            '=== الأجزاء المقروءة المستخرجة ===\\n' +
+                            readableParts.join('\\n---\\n') +
+                            '\\n\\n=== معلومات تقنية ===\\n' +
+                            'طول الـ hex: ' + match[1].length + ' حرف\\n' +
                             'الطول بعد فك الـ hex: ' + decoded.length + ' بايت';
+                        log('✅ تم استخراج ' + readableParts.length + ' جزء مقروء', 'success');
                         return result;
                     }
                 }
-            } catch(e) {}
+            } catch(e) {
+                log('❌ فشل فك الـ hex', 'fail');
+            }
         }
     }
-
-    // ============================================
-    // PASS 3: loadstring / load with base64
-    // ============================================
-    const loadstringPatterns = [
-        /loadstring\s*\(\s*["']([A-Za-z0-9+/=]{20,})["']\s*\)/,
-        /load\s*\(\s*["']([A-Za-z0-9+/=]{20,})["']\s*\)/,
-        /loadstring\s*\(\s*["']([A-Za-z0-9+/=]{20,})["']/
+    
+    // Pattern 2: Base64 in loadstring
+    const b64Patterns = [
+        /loadstring\\s*\\(\\s*["']([A-Za-z0-9+/=]{20,})["']\\s*\\)/,
+        /load\\s*\\(\\s*["']([A-Za-z0-9+/=]{20,})["']\\s*\\)/,
+        /loadstring\\s*\\(\\s*["']([A-Za-z0-9+/=]{20,})["']/
     ];
+    
+    for (let pattern of b64Patterns) {
+        const match = working.match(pattern);
+        if (match) {
+            log('✅ تم العثور على Base64 في loadstring', 'success');
+            const decoded = base64Decode(match[1]);
+            if (decoded && decoded.length > 0) {
+                result.success = true;
+                result.method = 'LuaObfuscator.com (Base64 + loadstring)';
+                result.original = decoded;
+                log('✅ تم فك Base64 بنجاح!', 'success');
+                return result;
+            }
+        }
+    }
+    
+    // Pattern 3: string.char sequences
+    let charAttempt = working;
+    let prev;
+    let passCount = 0;
+    do {
+        prev = charAttempt;
+        charAttempt = evalStringChar(charAttempt);
+        charAttempt = evalConcat(charAttempt);
+        passCount++;
+    } while (charAttempt !== prev && passCount < 10);
+    
+    if (charAttempt !== working) {
+        log('✅ تم فك string.char و concatenation', 'success');
+        if (isValidLua(charAttempt) || charAttempt.includes('http')) {
+            result.success = true;
+            result.method = 'LuaObfuscator.com (string.char + concat)';
+            result.original = charAttempt;
+            log('✅ الكود صالح!', 'success');
+            return result;
+        }
+    }
+    
+    log('❌ لم يتم التعرف على نمط LuaObfuscator', 'fail');
+    return result;
+}
 
+// ============================
+// Main Decryption Function
+// ============================
+
+function decryptLua(code, userKey) {
+    let result = { success: false, method: '', original: '', error: '', details: [], log: [] };
+    let working = code.trim();
+    
+    function log(msg, type = 'info') {
+        result.log.push({ msg, type });
+    }
+    
+    if (!working) {
+        result.error = 'الكود فارغ';
+        return result;
+    }
+    
+    log('🚀 بدء عملية فك التشفير...', 'info');
+    log('📊 طول الكود: ' + working.length + ' حرف', 'info');
+    
+    // ============================================
+    // PASS 0: Detect WeAreDevs v1.0.0
+    // ============================================
+    if (isWeAreDevs(working)) {
+        log('🔍 تم اكتشاف WeAreDevs Obfuscator!', 'info');
+        const wearedevsResult = decryptWeAreDevs(working);
+        if (wearedevsResult.success) {
+            result.success = true;
+            result.method = wearedevsResult.method;
+            result.original = wearedevsResult.original;
+            result.details = wearedevsResult.details;
+            result.log = [...result.log, ...wearedevsResult.log];
+            return result;
+        }
+        result.log = [...result.log, ...wearedevsResult.log];
+    }
+    
+    // ============================================
+    // PASS 0.5: Detect LuaObfuscator.com
+    // ============================================
+    if (isLuaObfuscator(working)) {
+        log('🔍 تم اكتشاف LuaObfuscator.com!', 'info');
+        const luaobfResult = decryptLuaObfuscator(working);
+        if (luaobfResult.success) {
+            result.success = true;
+            result.method = luaobfResult.method;
+            result.original = luaobfResult.original;
+            result.details = luaobfResult.details;
+            result.log = [...result.log, ...luaobfResult.log];
+            return result;
+        }
+        result.log = [...result.log, ...luaobfResult.log];
+    }
+    
+    // ============================================
+    // PASS 1: Resolve string.char and concatenations
+    // ============================================
+    log('🔍 محاولة 1: string.char + concatenation...', 'try');
+    let attempt = working;
+    let prev;
+    let passCount = 0;
+    do {
+        prev = attempt;
+        attempt = evalStringChar(attempt);
+        attempt = evalConcat(attempt);
+        passCount++;
+    } while (attempt !== prev && passCount < 10);
+    
+    if (attempt !== working) {
+        log('✅ تم فك string.char و concatenation', 'success');
+        if (isValidLua(attempt) || /https?:\\/\\//.test(attempt)) {
+            result.success = true;
+            result.method = 'string.char + concatenation';
+            result.original = attempt;
+            log('✅ الكود صالح!', 'success');
+            return result;
+        }
+    } else {
+        log('❌ لم يتم العثور على string.char', 'fail');
+    }
+    
+    // ============================================
+    // PASS 2: loadstring / load with base64
+    // ============================================
+    log('🔍 محاولة 2: loadstring + Base64...', 'try');
+    const loadstringPatterns = [
+        /loadstring\\s*\\(\\s*["']([A-Za-z0-9+/=]{20,})["']\\s*\\)/,
+        /load\\s*\\(\\s*["']([A-Za-z0-9+/=]{20,})["']\\s*\\)/,
+        /loadstring\\s*\\(\\s*["']([A-Za-z0-9+/=]{20,})["']/
+    ];
+    
     for (let pattern of loadstringPatterns) {
         const match = working.match(pattern);
         if (match) {
+            log('✅ تم العثور على Base64 في loadstring', 'success');
             const decoded = base64Decode(match[1]);
             if (decoded && decoded.length > 0) {
                 result.success = true;
                 result.method = 'loadstring + Base64';
                 result.original = decoded;
+                log('✅ تم فك Base64 بنجاح!', 'success');
                 return result;
             }
         }
     }
-
+    log('❌ لم يتم العثور على Base64 في loadstring', 'fail');
+    
     // ============================================
-    // PASS 4: Direct Base64
+    // PASS 3: Direct Base64
     // ============================================
-    if (/^[A-Za-z0-9+/=\s]+$/.test(working) && working.replace(/\s/g, '').length > 20) {
-        const clean = working.replace(/\s/g, '');
+    log('🔍 محاولة 3: Base64 مباشر...', 'try');
+    if (/^[A-Za-z0-9+/=\\s]+$/.test(working) && working.replace(/\\s/g, '').length > 20) {
+        const clean = working.replace(/\\s/g, '');
         const decoded = base64Decode(clean);
-        if (decoded && /(\bfunction\b|\blocal\b|\bprint\b|\bend\b)/.test(decoded)) {
+        if (decoded && isValidLua(decoded)) {
             result.success = true;
             result.method = 'Base64 مباشر';
             result.original = decoded;
+            log('✅ تم فك Base64 مباشر!', 'success');
             return result;
         }
     }
-
+    log('❌ لم يتم العثور على Base64 مباشر', 'fail');
+    
     // ============================================
-    // PASS 5: string.reverse
+    // PASS 4: string.reverse
     // ============================================
+    log('🔍 محاولة 4: string.reverse...', 'try');
     const reversePatterns = [
-        /string\.reverse\s*\(\s*["'](.+)["']\s*\)/,
-        /string\.reverse\s*\(\s*["']([^"']+)["']/
+        /string\\.reverse\\s*\\(\\s*["'](.+)["']\\s*\\)/,
+        /string\\.reverse\\s*\\(\\s*["']([^"']+)["']/
     ];
-
+    
     for (let pattern of reversePatterns) {
         const match = working.match(pattern);
         if (match) {
             result.success = true;
             result.method = 'string.reverse';
             result.original = match[1].split('').reverse().join('');
+            log('✅ تم فك string.reverse!', 'success');
             return result;
         }
     }
-
+    log('❌ لم يتم العثور على string.reverse', 'fail');
+    
     // ============================================
-    // PASS 6: Byte array {72, 101, ...}
+    // PASS 5: Byte array {72, 101, ...}
     // ============================================
+    log('🔍 محاولة 5: Byte Array...', 'try');
     const bytePatterns = [
-        /\{\s*(\d+(?:\s*,\s*\d+){5,})\s*\}/,
-        /=\s*\{\s*(\d+(?:\s*,\s*\d+){5,})\s*\}/
+        /\\{\\s*(\\d+(?:\\s*,\\s*\\d+){5,})\\s*\\}/,
+        /=\\s*\\{\\s*(\\d+(?:\\s*,\\s*\\d+){5,})\\s*\\}/
     ];
-
+    
     for (let pattern of bytePatterns) {
         const match = working.match(pattern);
         if (match) {
             try {
                 const bytes = match[1].split(',').map(n => parseInt(n.trim()));
                 const decoded = bytes.map(b => String.fromCharCode(b)).join('');
-                if (/(\bfunction\b|\blocal\b|\bprint\b|\bend\b)/.test(decoded)) {
+                if (isValidLua(decoded)) {
                     result.success = true;
                     result.method = 'Byte Array';
                     result.original = decoded;
+                    log('✅ تم فك Byte Array!', 'success');
                     return result;
                 }
             } catch(e) {}
         }
     }
-
+    log('❌ لم يتم العثور على Byte Array', 'fail');
+    
     // ============================================
-    // PASS 7: XOR with common keys + user key
+    // PASS 6: XOR with common keys + user key
     // ============================================
-    const commonKeys = ['key', 'lua', 'script', 'obf', '123', 'abc', 'KEY', 'LUA', 'obfuscator', 'moonsec'];
+    log('🔍 محاولة 6: XOR...', 'try');
+    const commonKeys = ['key', 'lua', 'script', 'obf', '123', 'abc', 'KEY', 'LUA', 'obfuscator', 'moonsec', 'prometheus', 'wearedevs'];
     if (userKey) commonKeys.unshift(userKey);
-
+    
     for (let key of commonKeys) {
         try {
             const decrypted = xorDecrypt(working, key);
-            if (/(\bfunction\b|\blocal\b|\bprint\b|\bend\b)/.test(decrypted) && decrypted !== working) {
+            if (isValidLua(decrypted) && decrypted !== working) {
                 result.success = true;
                 result.method = 'XOR (key: ' + key + ')';
                 result.original = decrypted;
+                log('✅ تم فك XOR بمفتاح: ' + key, 'success');
                 return result;
             }
         } catch(e) {}
     }
-
+    log('❌ لم يتم فك XOR', 'fail');
+    
     // ============================================
-    // PASS 8: URL encoded
+    // PASS 7: URL encoded
     // ============================================
+    log('🔍 محاولة 7: URL Encoding...', 'try');
     try {
         const urlDecoded = decodeURIComponent(working);
-        if (urlDecoded !== working && /(\bfunction\b|\blocal\b|\bprint\b|\bend\b)/.test(urlDecoded)) {
+        if (urlDecoded !== working && isValidLua(urlDecoded)) {
             result.success = true;
             result.method = 'URL Encoding';
             result.original = urlDecoded;
+            log('✅ تم فك URL Encoding!', 'success');
             return result;
         }
-    } catch(e) {}
-
+    } catch(e) {
+        log('❌ لم يتم فك URL Encoding', 'fail');
+    }
+    
     // ============================================
-    // PASS 9: Hex encoded (full file)
+    // PASS 8: Hex encoded (full file)
     // ============================================
-    if (/^[0-9a-fA-F\s]+$/.test(working) && working.replace(/\s/g, '').length > 20) {
+    log('🔍 محاولة 8: Hex Encoding...', 'try');
+    if (/^[0-9a-fA-F\\s]+$/.test(working) && working.replace(/\\s/g, '').length > 20) {
         try {
             const decoded = hexDecode(working);
-            if (/(\bfunction\b|\blocal\b|\bprint\b|\bend\b)/.test(decoded)) {
+            if (isValidLua(decoded)) {
                 result.success = true;
                 result.method = 'Hex Encoding';
                 result.original = decoded;
+                log('✅ تم فك Hex Encoding!', 'success');
                 return result;
             }
-        } catch(e) {}
+        } catch(e) {
+            log('❌ لم يتم فك Hex Encoding', 'fail');
+        }
     }
-
+    
     // ============================================
-    // PASS 10: Already readable or partially readable
+    // PASS 9: Already readable or partially readable
     // ============================================
-    if (/(\bfunction\b|\blocal\b|\bprint\b|\bif\b|\bfor\b|\bwhile\b|\bend\b)/.test(working)) {
+    log('🔍 محاولة 9: كود عادي...', 'try');
+    if (isValidLua(working)) {
         result.success = true;
         result.method = 'كود عادي (غير مشفر أو جزئياً)';
         result.original = working;
+        log('✅ الكود مقروء بالفعل!', 'success');
         return result;
     }
-
+    
     // ============================================
-    // PASS 11: Extract any readable strings
+    // PASS 10: Extract any readable strings
     // ============================================
+    log('🔍 محاولة 10: استخراج النصوص المقروءة...', 'try');
     const allStrings = extractStrings(working);
-    const readableStrings = allStrings.filter(s => s.length > 3 && /^[\x20-\x7E\u0600-\u06FF]+$/.test(s));
-
-    if (readableStrings.length > 0) {
-        result.error = 'لم يتم التعرف على طريقة التشفير المحددة.\n\n' +
-            'الكود يستخدم obfuscation متقدم (ربما LuaObfuscator.com أو MoonSec).\n\n' +
-            '=== النصوص المقروءة المستخرجة ===\n' +
-            readableStrings.slice(0, 20).join('\n') +
-            '\n\n=== نصائح للفك اليدوي ===\n' +
-            '1. ابحث عن دالة التشفير الرئيسية في الكود\n' +
-            '2. جرب نسخ الـ hex string أو البيانات المشفرة وفكها\n' +
-            '3. استخدم أدوات خارجية مثل LuaDec أو unluac للـ bytecode\n' +
-            '4. جرب مفتاح XOR مخصص في الحقل أدناه';
-    } else {
-        result.error = 'لم يتم التعرف على طريقة التشفير. الكود يستخدم obfuscation متقدم جداً.\n\n' +
-            'الكود قد يكون:\n' +
-            '- LuaObfuscator.com (تشفير قوي)\n' +
-            '- MoonSec أو Synapse Xen\n' +
-            '- Bytecode مشفر\n\n' +
-            'جرب استخدام مفتاح XOR مخصص أو أداة خارجية.';
-    }
-
-    return result;
-}
-
-function decryptCode() {
-    const code = codeEditor.value.trim();
-    if (!code) {
-        decryptOutput.innerHTML = '<div class="decrypt-status error">❌ الصق كود مشفر أولاً</div>';
-        switchTab('decrypt', null);
-        return;
-    }
-
-    switchTab('decrypt', null);
-    decryptOutput.innerHTML = 
-        '<div class="decrypt-status info">⏳ جاري فك التشفير...</div>' +
-        '<div style="margin-top:10px;">' +
-        '<input type="text" class="decrypt-key-input" id="decryptKey" placeholder="مفتاح XOR اختياري..." />' +
-        '</div>';
-
-    setTimeout(() => {
-        const userKey = document.getElementById('decryptKey')?.value || '';
-        const result = decryptLua(code, userKey);
-
-        if (result.success) {
-            let html = '<div class="decrypt-status success">✅ تم فك التشفير! الطريقة: ' + escapeHtml(result.method) + '</div>';
-
-            if (result.details && result.details.length > 1) {
-                html += '<div style="margin-bottom:8px;">';
-                result.details.forEach((d, i) => {
-                    html += '<div class="decrypt-option" onclick="showDetail(' + i + ')">' + escapeHtml(d.method) + '</div>';
-                });
-                html += '</div>';
-            }
-
-            html += '<div class="decrypt-result">' + escapeHtml(result.original) + '</div>';
-            html += '<div style="display:flex;gap:8px;margin-top:8px;">';
-            html += '<button class="copy-btn" onclick="copyDecrypted(this)">📋 نسخ الكود</button>';
-            html += '<button class="copy-btn" style="background:#22c55e;" onclick="useDecrypted()">▶️ تشغيل</button>';
-            html += '</div>';
-
-            decryptOutput.innerHTML = html;
-            window.decryptedCode = result.original;
-            window.decryptDetails = result.details;
-        } else {
-            let html = '<div class="decrypt-status error">❌ فشل فك التشفير</div>';
-            html += '<div class="decrypt-result" style="color:#fbbf24;">' + escapeHtml(result.error) + '</div>';
-            html += '<div style="margin-top:10px;">';
-            html += '<input type="text" class="decrypt-key-input" id="decryptKey2" placeholder="جرب مفتاح XOR مخصص..." />';
-            html += '<button class="copy-btn" style="margin-top:8px;" onclick="retryDecrypt()">🔄 إعادة المحاولة</button>';
-            html += '</div>';
-            decryptOutput.innerHTML = html;
-        }
-    }, 500);
-}
-
-function retryDecrypt() {
-    const code = codeEditor.value.trim();
-    const key = document.getElementById('decryptKey2')?.value || '';
-    if (key) {
-        const result = decryptLua(code, key);
-        if (result.success) {
-            let html = '<div class="decrypt-status success">✅ تم فك التشفير بالمفتاح! الطريقة: ' + escapeHtml(result.method) + '</div>';
-            html += '<div class="decrypt-result">' + escapeHtml(result.original) + '</div>';
-            html += '<div style="display:flex;gap:8px;margin-top:8px;">';
-            html += '<button class="copy-btn" onclick="copyDecrypted(this)">📋 نسخ الكود</button>';
-            html += '<button class="copy-btn" style="background:#22c55e;" onclick="useDecrypted()">▶️ تشغيل</button>';
-            html += '</div>';
-            decryptOutput.innerHTML = html;
-            window.decryptedCode = result.original;
-        } else {
-            decryptOutput.innerHTML = '<div class="decrypt-status error">❌ فشل أيضاً بالمفتاح المقدم</div>' +
-                '<div class="decrypt-result" style="color:#fbbf24;">' + escapeHtml(result.error) + '</div>';
-        }
-    }
-}
-
-function showDetail(index) {
-    if (window.decryptDetails && window.decryptDetails[index]) {
-        const detail = window.decryptDetails[index];
-        alert('الطريقة: ' + detail.method + '\n\n' + detail.content.substring(0, 500));
-    }
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function copyDecrypted(btn) {
-    if (window.decryptedCode) {
-        navigator.clipboard.writeText(window.decryptedCode).then(() => {
-            if (!btn && typeof event !== 'undefined') btn = event.target;
-            if (btn) {
-                const originalText = btn.textContent;
-                btn.textContent = '✅ تم النسخ!';
-                btn.classList.add('copied');
-                setTimeout(() => { 
-                    btn.textContent = originalText; 
-                    btn.classList.remove('copied'); 
-                }, 2000);
-            }
-        }).catch(err => {
-            const textarea = document.createElement('textarea');
-            textarea.value = window.decryptedCode;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            if (!btn && typeof event !== 'undefined') btn = event.target;
-            if (btn) {
-                btn.textContent = '✅ تم النسخ!';
-                setTimeout(() => btn.textContent = '📋 نسخ الكود', 2000);
-            }
-        });
-    }
-}
-
-function useDecrypted() {
-    if (window.decryptedCode) {
-        codeEditor.value = window.decryptedCode;
-        switchTab('output', null);
-        runCode();
-    }
-}
-function decryptCode() {
-    const code = codeEditor.value.trim();
-    if (!code) {
-        decryptOutput.innerHTML = '<div class="decrypt-status error">❌ الصق كود مشفر أولاً</div>';
-        switchTab('decrypt');
-        return;
-    }
-    switchTab('decrypt');
-    decryptOutput.innerHTML = '<div class="decrypt-status info">⏳ جاري فك التشفير...</div>';
-
-    setTimeout(() => {
-        const result = decryptLua(code);
-        if (result.success) {
-            let html = '<div class="decrypt-status success">✅ تم فك التشفير! الطريقة: ' + result.method + '</div>';
-            html += '<div class="decrypt-result">' + escapeHtml(result.original) + '</div>';
-            html += '<button class="copy-btn" onclick="copyDecrypted(this)">📋 نسخ الكود</button>';
-            html += '<button class="copy-btn" style="background:#22c55e;margin-right:8px;" onclick="useDecrypted()">▶️ تشغيل</button>';
-            decryptOutput.innerHTML = html;
-            window.decryptedCode = result.original;
-        } else {
-            decryptOutput.innerHTML = '<div class="decrypt-status error">❌ ' + result.error + '</div>';
-        }
-    }, 500);
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function copyDecrypted(btn) {
-    if (window.decryptedCode) {
-        navigator.clipboard.writeText(window.decryptedCode).then(() => {
-            if (!btn && typeof event !== 'undefined') btn = event.target;
-            if (btn) {
-                btn.textContent = '✅ تم النسخ!';
-                btn.classList.add('copied');
-                setTimeout(() => { btn.textContent = '📋 نسخ الكود'; btn.classList.remove('copied'); }, 2000);
-            }
-        });
-    }
-}
-
-function useDecrypted() {
-    if (window.decryptedCode) {
-        codeEditor.value = window.decryptedCode;
-        switchTab('output');
-        runCode();
-    }
-}
-
-
-const output = document.getElementById('output');
-const visualOutput = document.getElementById('visualOutput');
-const lessonContent = document.getElementById('lessonContent');
-const currentLessonTitle = document.getElementById('currentLesson');
-
-document.querySelectorAll('.lesson-section h3').forEach(header => {
-    header.addEventListener('click', () => {
-        header.parentElement.classList.toggle('collapsed');
-    });
-});
-
-document.querySelectorAll('.lesson-list li').forEach(item => {
-    item.addEventListener('click', () => {
-        document.querySelectorAll('.lesson-list li').forEach(li => li.classList.remove('active'));
-        item.classList.add('active');
-        const lessonKey = item.dataset.lesson;
-        if (lessons[lessonKey]) {
-            lessonContent.innerHTML = lessons[lessonKey].content;
-            currentLessonTitle.textContent = lessons[lessonKey].title;
-        }
-    });
-});
-
-function loadExample(name) {
-    if (examples[name]) {
-        codeEditor.value = examples[name];
-        codeEditor.style.background = '#1e3a5f';
-        setTimeout(() => { codeEditor.style.background = '#0f172a'; }, 300);
-    }
-}
-
-function clearOutput() {
-    output.innerHTML = '<div class="output-line info">🚀 جاهز لتشغيل الكود...</div><div class="output-line info">─────────────────────────</div>';
-    visualOutput.innerHTML = '<div class="visual-empty">🎨 اضغط "تشغيل" لرؤية تصور السكربت</div>';
-}
-
-function addOutput(type, text) {
-    const div = document.createElement('div');
-    div.className = 'output-line ' + type;
-    div.textContent = text;
-    output.appendChild(div);
-    output.scrollTop = output.scrollHeight;
-}
-
-// Syntax highlighting for Lua
-function highlightLua(code) {
-    let html = '';
-    const lines = code.split('\n');
-    const keywords = ['local', 'function', 'end', 'if', 'then', 'else', 'elseif', 'for', 'do', 'while', 'repeat', 'until', 'return', 'and', 'or', 'not', 'in', 'nil', 'true', 'false'];
-
-    lines.forEach(line => {
-        let highlighted = line
-            .replace(/(--.*$)/g, '<span class="cm">$1</span>')
-            .replace(/("(?:[^"\\]|\\.)*")/g, '<span class="str">$1</span>')
-            .replace(/('(?:[^'\\]|\\.)*')/g, '<span class="str">$1</span>')
-            .replace(/(\b\d+\.?\d*\b)/g, '<span class="num">$1</span>');
-
-        keywords.forEach(kw => {
-            const regex = new RegExp('\\b' + kw + '\\b', 'g');
-            highlighted = highlighted.replace(regex, '<span class="kw">' + kw + '</span>');
-        });
-
-        highlighted = highlighted
-            .replace(/\b(print|type|tostring|tonumber|pairs|ipairs|next|assert|error|pcall|xpcall|collectgarbage|dofile|loadfile|load|require|module|select|unpack|rawget|rawset|rawequal|setmetatable|getmetatable)\b/g, '<span class="func">$1</span>')
-            .replace(/\b(math|string|table|io|os|debug|coroutine|package)\b/g, '<span class="var">$1</span>')
-            .replace(/(\+|-|\*|\/|%|\^|\.\.|==|~=|<=|>=|<|>|=)/g, '<span class="op">$1</span>');
-
-        html += '<div class="visual-code-line">' + highlighted + '</div>';
-    });
-    return html;
-}
-
-// Parse code for visualization
-function visualizeCode(code) {
-    const lines = code.split('\n');
-    let html = '';
-
-    // Variables found
-    let vars = [];
-    let funcs = [];
-    let tbls = [];
-    let loops = [];
-    let conds = [];
-
-    lines.forEach((line, idx) => {
-        const trimmed = line.trim();
-
-        // Variables
-        const varMatch = trimmed.match(/^local\s+(\w+)\s*=/);
-        if (varMatch && !trimmed.includes('function')) {
-            const name = varMatch[1];
-            const val = trimmed.substring(trimmed.indexOf('=') + 1).trim();
-            let type = 'any';
-            if (val.startsWith('"') || val.startsWith("'")) type = 'string';
-            else if (val.startsWith('{')) type = 'table';
-            else if (val.startsWith('function') || val.includes('function')) type = 'function';
-            else if (!isNaN(parseFloat(val))) type = 'number';
-            else if (val === 'true' || val === 'false') type = 'boolean';
-            vars.push({name, type, value: val.length > 30 ? val.substring(0, 30) + '...' : val});
-        }
-
-        // Functions
-        const funcMatch = trimmed.match(/function\s+(\w+)/);
-        if (funcMatch) {
-            funcs.push({name: funcMatch[1], line: idx + 1});
-        }
-
-        // Tables
-        const tblMatch = trimmed.match(/^local\s+(\w+)\s*=\s*\{/);
-        if (tblMatch) {
-            tbls.push({name: tblMatch[1], line: idx + 1});
-        }
-
-        // Loops
-        if (trimmed.startsWith('for ')) loops.push({type: 'for', line: idx + 1, code: trimmed.substring(0, 40)});
-        if (trimmed.startsWith('while ')) loops.push({type: 'while', line: idx + 1, code: trimmed.substring(0, 40)});
-        if (trimmed.startsWith('repeat')) loops.push({type: 'repeat', line: idx + 1});
-
-        // Conditions
-        if (trimmed.startsWith('if ')) conds.push({type: 'if', line: idx + 1, code: trimmed.substring(0, 40)});
-    });
-
-    // Build visualization
-    html += '<div class="visual-box">';
-    html += '<div class="visual-box-title">📋 الكود مع التلوين</div>';
-    html += highlightLua(code);
-    html += '</div>';
-
-    if (vars.length > 0) {
-        html += '<div class="visual-box">';
-        html += '<div class="visual-box-title">📦 المتغيرات (' + vars.length + ')</div>';
-        vars.forEach(v => {
-            html += '<div class="visual-var">';
-            html += '<span class="visual-var-name">' + v.name + '</span>';
-            html += '<span class="visual-var-type">' + v.type + '</span>';
-            html += '<span class="visual-var-value">= ' + v.value + '</span>';
-            html += '</div>';
-        });
-        html += '</div>';
-    }
-
-    if (funcs.length > 0) {
-        html += '<div class="visual-box">';
-        html += '<div class="visual-box-title">⚙️ الدوال (' + funcs.length + ')</div>';
-        funcs.forEach(f => {
-            html += '<div class="visual-var">';
-            html += '<span class="visual-var-name">' + f.name + '()</span>';
-            html += '<span class="visual-var-type">function</span>';
-            html += '<span class="visual-var-value">سطر ' + f.line + '</span>';
-            html += '</div>';
-        });
-        html += '</div>';
-    }
-
-    if (tbls.length > 0) {
-        html += '<div class="visual-box">';
-        html += '<div class="visual-box-title">📊 الجداول (' + tbls.length + ')</div>';
-        tbls.forEach(t => {
-            html += '<div class="visual-var">';
-            html += '<span class="visual-var-name">' + t.name + '</span>';
-            html += '<span class="visual-var-type">table</span>';
-            html += '<span class="visual-var-value">سطر ' + t.line + '</span>';
-            html += '</div>';
-        });
-        html += '</div>';
-    }
-
-    if (loops.length > 0) {
-        html += '<div class="visual-box">';
-        html += '<div class="visual-box-title">🔄 الحلقات (' + loops.length + ')</div>';
-        html += '<div class="visual-flow">';
-        loops.forEach((l, i) => {
-            html += '<div class="flow-step">';
-            html += '<div class="flow-step-num">' + (i + 1) + '</div>';
-            html += '<div class="flow-step-text">' + l.type + ' - سطر ' + l.line + '</div>';
-            html += '</div>';
-            if (i < loops.length - 1) html += '<div class="flow-arrow">↓</div>';
-        });
-        html += '</div></div>';
-    }
-
-    if (conds.length > 0) {
-        html += '<div class="visual-box">';
-        html += '<div class="visual-box-title">❓ الشروط (' + conds.length + ')</div>';
-        conds.forEach((c, i) => {
-            html += '<div class="flow-step">';
-            html += '<div class="flow-step-num">' + (i + 1) + '</div>';
-            html += '<div class="flow-step-text">if - سطر ' + c.line + '</div>';
-            html += '</div>';
-        });
-        html += '</div>';
-    }
-
-    if (vars.length === 0 && funcs.length === 0 && tbls.length === 0 && loops.length === 0 && conds.length === 0) {
-        html += '<div class="visual-box">';
-        html += '<div class="visual-box-title">📋 الكود</div>';
-        html += highlightLua(code);
-        html += '</div>';
-    }
-
-    return html;
-}
-
-function runCode() {
-    const code = codeEditor.value;
-    addOutput('input', '> تشغيل الكود...');
-    addOutput('info', '─────────────────────────');
-
-    // Visualize
-    visualOutput.innerHTML = visualizeCode(code);
-
-    try {
-        interpretLua(code);
-    } catch (e) {
-        addOutput('error', 'خطأ: ' + e.message);
-    }
-
-    addOutput('info', '─────────────────────────');
-    addOutput('info', '✅ انتهى التنفيذ');
-}
-
-function interpretLua(code) {
-    const lines = code.split('\n');
-    let variables = {};
-    let localVars = {};
-    let tables = {};
-    let functions = {};
-    let i = 0;
-
-    function evaluate(expr) {
-        expr = expr.trim();
-        if ((expr.startsWith('"') && expr.endsWith('"')) || (expr.startsWith("'") && expr.endsWith("'"))) {
-            return expr.slice(1, -1);
-        }
-        if (expr.startsWith('[[') && expr.endsWith(']]')) {
-            return expr.slice(2, -2);
-        }
-        if (expr.startsWith('[=') && expr.includes(']=')) {
-            const closeIdx = expr.lastIndexOf(']=');
-            return expr.slice(expr.indexOf('[')+1, closeIdx);
-        }
-        if (!isNaN(parseFloat(expr)) && isFinite(expr)) {
-            return parseFloat(expr);
-        }
-        if (expr === 'true') return true;
-        if (expr === 'false') return false;
-        if (expr === 'nil') return null;
-        if (localVars.hasOwnProperty(expr)) return localVars[expr];
-        if (variables.hasOwnProperty(expr)) return variables[expr];
-        if (tables.hasOwnProperty(expr)) return tables[expr];
-
-        const dotMatch = expr.match(/^(.+)\.(.+)$/);
-        if (dotMatch) {
-            const tableName = dotMatch[1].trim();
-            const key = dotMatch[2].trim();
-            const table = tables[tableName] || variables[tableName] || localVars[tableName];
-            if (table && typeof table === 'object') return table[key];
-        }
-
-        const bracketMatch = expr.match(/^(.+)\[(.+)\]$/);
-        if (bracketMatch) {
-            const tableName = bracketMatch[1].trim();
-            const key = evaluate(bracketMatch[2].trim());
-            const table = tables[tableName] || variables[tableName] || localVars[tableName];
-            if (table && typeof table === 'object') return table[key];
-        }
-
-        if (expr.includes('..')) {
-            const parts = expr.split('..').map(p => evaluate(p.trim()));
-            return parts.join('');
-        }
-
-        try {
-            let evalExpr = expr;
-            for (let v in localVars) {
-                evalExpr = evalExpr.replace(new RegExp('\\b' + v + '\\b', 'g'), JSON.stringify(localVars[v]));
-            }
-            for (let v in variables) {
-                evalExpr = evalExpr.replace(new RegExp('\\b' + v + '\\b', 'g'), JSON.stringify(variables[v]));
-            }
-            evalExpr = evalExpr.replace(/~= /g, '!== ');
-            evalExpr = evalExpr.replace(/\/\/.*$/g, '');
-            if (/^[0-9+\-*/^%().\s]+$/.test(evalExpr)) {
-                evalExpr = evalExpr.replace(/\^/g, '**');
-                return Function('"use strict"; return (' + evalExpr + ')')();
-            }
-            return Function('"use strict"; return (' + evalExpr + ')')();
-        } catch(e) {
-            return expr;
-        }
-    }
-
-    while (i < lines.length) {
-        let line = lines[i].trim();
-        if (!line || line.startsWith('--')) { i++; continue; }
-        const commentIdx = line.indexOf(' --');
-        if (commentIdx > 0) line = line.substring(0, commentIdx).trim();
-        if (line.startsWith('--[[')) {
-            while (i < lines.length && !lines[i].includes(']]')) i++;
-            i++; continue;
-        }
-
-        if (line.startsWith('local ')) {
-            const rest = line.substring(6).trim();
-            if (rest.startsWith('function ')) {
-                const funcMatch = rest.match(/function\s+(\w+)\s*\(([^)]*)\)/);
-                if (funcMatch) {
-                    const funcName = funcMatch[1];
-                    const params = funcMatch[2].split(',').map(p => p.trim()).filter(p => p);
-                    let funcBody = [];
-                    i++;
-                    let depth = 1;
-                    while (i < lines.length && depth > 0) {
-                        const bodyLine = lines[i].trim();
-                        if (bodyLine.startsWith('function ') || bodyLine.startsWith('if ') || bodyLine.startsWith('for ') || bodyLine.startsWith('while ') || bodyLine.startsWith('repeat')) depth++;
-                        if (bodyLine === 'end') depth--;
-                        if (depth > 0) funcBody.push(lines[i]);
-                        i++;
-                    }
-                    localVars[funcName] = { type: 'function', params, body: funcBody };
-                    continue;
-                }
-            }
-            const tableMatch = rest.match(/^(\w+)\s*=\s*\{([^}]*)\}/);
-            if (tableMatch) {
-                const name = tableMatch[1];
-                const content = tableMatch[2];
-                const table = {};
-                if (content.trim()) {
-                    const items = content.split(',').map(s => s.trim()).filter(s => s);
-                    items.forEach((item, idx) => {
-                        if (item.includes('=')) {
-                            const [k, v] = item.split('=').map(s => s.trim());
-                            table[k] = evaluate(v);
-                        } else {
-                            table[idx + 1] = evaluate(item);
-                        }
-                    });
-                }
-                localVars[name] = table;
-                tables[name] = table;
-                i++;
-                continue;
-            }
-            if (rest.includes('=')) {
-                const eqIdx = rest.indexOf('=');
-                const names = rest.substring(0, eqIdx).split(',').map(n => n.trim());
-                const values = rest.substring(eqIdx + 1).split(',').map(v => evaluate(v.trim()));
-                names.forEach((name, idx) => {
-                    localVars[name] = values[idx] !== undefined ? values[idx] : null;
-                });
-            } else {
-                rest.split(',').forEach(n => { localVars[n.trim()] = null; });
-            }
-            i++;
-            continue;
-        }
-
-        if (line.startsWith('function ')) {
-            const funcMatch = line.match(/function\s+(\w+)\s*\(([^)]*)\)/);
-            if (funcMatch) {
-                const funcName = funcMatch[1];
-                const params = funcMatch[2].split(',').map(p => p.trim()).filter(p => p);
-                let funcBody = [];
-                i++;
-                let depth = 1;
-                while (i < lines.length && depth > 0) {
-                    const bodyLine = lines[i].trim();
-                    if (bodyLine.startsWith('function ') || bodyLine.startsWith('if ') || bodyLine.startsWith('for ') || bodyLine.startsWith('while ') || bodyLine.startsWith('repeat')) depth++;
-                    if (bodyLine === 'end') depth--;
-                    if (depth > 0) funcBody.push(lines[i]);
-                    i++;
-                }
-                functions[funcName] = { params, body: funcBody };
-                continue;
-            }
-        }
-
-        if (line.startsWith('if ')) {
-            const condition = line.substring(3).replace(/then$/, '').trim();
-            const condResult = evaluate(condition);
-            let ifBody = [];
-            let elseBody = [];
-            let inElse = false;
-            i++;
-            let depth = 1;
-            while (i < lines.length && depth > 0) {
-                const bodyLine = lines[i].trim();
-                if (bodyLine.startsWith('if ')) depth++;
-                if (bodyLine === 'end') {
-                    depth--;
-                    if (depth === 0) { i++; break; }
-                }
-                if (depth === 1 && bodyLine.startsWith('elseif ')) { inElse = true; i++; continue; }
-                if (depth === 1 && bodyLine === 'else') { inElse = true; i++; continue; }
-                if (depth > 0) {
-                    if (inElse) elseBody.push(lines[i]);
-                    else ifBody.push(lines[i]);
-                }
-                i++;
-            }
-            if (condResult) {
-                ifBody.forEach(bline => {
-                    const trimmed = bline.trim();
-                    if (trimmed.startsWith('print(')) {
-                        const arg = trimmed.substring(6, trimmed.length - 1);
-                        addOutput('output', evaluate(arg));
-                    }
-                });
-            } else {
-                elseBody.forEach(bline => {
-                    const trimmed = bline.trim();
-                    if (trimmed.startsWith('print(')) {
-                        const arg = trimmed.substring(6, trimmed.length - 1);
-                        addOutput('output', evaluate(arg));
-                    }
-                });
-            }
-            continue;
-        }
-
-        if (line.startsWith('for ')) {
-            const forMatch = line.match(/for\s+(\w+)\s*=\s*(.+)\s*,\s*(.+)\s+do/);
-            if (forMatch) {
-                const varName = forMatch[1];
-                const start = evaluate(forMatch[2]);
-                const end = evaluate(forMatch[3]);
-                let loopBody = [];
-                i++;
-                while (i < lines.length && lines[i].trim() !== 'end') {
-                    loopBody.push(lines[i]);
-                    i++;
-                }
-                i++;
-                for (let j = start; j <= end; j++) {
-                    localVars[varName] = j;
-                    loopBody.forEach(bline => {
-                        const trimmed = bline.trim();
-                        if (trimmed.startsWith('print(')) {
-                            const arg = trimmed.substring(6, trimmed.length - 1);
-                            let result = evaluate(arg);
-                            if (typeof result === 'string') {
-                                result = result.replace(new RegExp('\\.\\.' + varName, 'g'), j.toString());
-                                result = result.replace(new RegExp(varName + '\\.\\.', 'g'), j.toString());
-                            }
-                            addOutput('output', result);
-                        }
-                    });
-                }
-                continue;
-            }
-            const pairsMatch = line.match(/for\s+(\w+),?\s*(\w*)?\s+in\s+pairs\((.+)\)\s+do/);
-            if (pairsMatch) {
-                const keyVar = pairsMatch[1];
-                const valVar = pairsMatch[2] || '';
-                const tableName = pairsMatch[3];
-                const table = tables[tableName] || variables[tableName] || localVars[tableName] || {};
-                let loopBody = [];
-                i++;
-                while (i < lines.length && lines[i].trim() !== 'end') {
-                    loopBody.push(lines[i]);
-                    i++;
-                }
-                i++;
-                for (let k in table) {
-                    if (valVar) localVars[valVar] = table[k];
-                    localVars[keyVar] = k;
-                    loopBody.forEach(bline => {
-                        const trimmed = bline.trim();
-                        if (trimmed.startsWith('print(')) {
-                            const arg = trimmed.substring(6, trimmed.length - 1);
-                            addOutput('output', evaluate(arg));
-                        }
-                    });
-                }
-                continue;
-            }
-            const ipairsMatch = line.match(/for\s+(\w+),\s*(\w+)\s+in\s+ipairs\((.+)\)\s+do/);
-            if (ipairsMatch) {
-                const idxVar = ipairsMatch[1];
-                const valVar = ipairsMatch[2];
-                const tableName = ipairsMatch[3];
-                const table = tables[tableName] || variables[tableName] || localVars[tableName] || {};
-                let loopBody = [];
-                i++;
-                while (i < lines.length && lines[i].trim() !== 'end') {
-                    loopBody.push(lines[i]);
-                    i++;
-                }
-                i++;
-                let idx = 1;
-                while (table[idx] !== undefined) {
-                    localVars[idxVar] = idx;
-                    localVars[valVar] = table[idx];
-                    loopBody.forEach(bline => {
-                        const trimmed = bline.trim();
-                        if (trimmed.startsWith('print(')) {
-                            const arg = trimmed.substring(6, trimmed.length - 1);
-                            addOutput('output', evaluate(arg));
-                        }
-                    });
-                    idx++;
-                }
-                continue;
-            }
-        }
-
-        if (line.startsWith('while ')) {
-            const condition = line.substring(6).replace(/do$/, '').trim();
-            let loopBody = [];
-            i++;
-            while (i < lines.length && lines[i].trim() !== 'end') {
-                loopBody.push(lines[i]);
-                i++;
-            }
-            i++;
-            let safety = 0;
-            while (evaluate(condition) && safety < 100) {
-                safety++;
-                loopBody.forEach(bline => {
-                    const trimmed = bline.trim();
-                    if (trimmed.startsWith('print(')) {
-                        const arg = trimmed.substring(6, trimmed.length - 1);
-                        addOutput('output', evaluate(arg));
-                    }
-                    if (trimmed.includes('=') && !trimmed.startsWith('local')) {
-                        const eqIdx = trimmed.indexOf('=');
-                        const name = trimmed.substring(0, eqIdx).trim();
-                        const val = evaluate(trimmed.substring(eqIdx + 1).trim());
-                        if (localVars.hasOwnProperty(name)) localVars[name] = val;
-                        else variables[name] = val;
-                    }
-                });
-            }
-            continue;
-        }
-
-        if (line.startsWith('repeat')) {
-            let loopBody = [];
-            i++;
-            while (i < lines.length && !lines[i].trim().startsWith('until ')) {
-                loopBody.push(lines[i]);
-                i++;
-            }
-            const untilLine = lines[i].trim();
-            const condition = untilLine.substring(6).trim();
-            i++;
-            let safety = 0;
-            do {
-                safety++;
-                loopBody.forEach(bline => {
-                    const trimmed = bline.trim();
-                    if (trimmed.startsWith('print(')) {
-                        const arg = trimmed.substring(6, trimmed.length - 1);
-                        addOutput('output', evaluate(arg));
-                    }
-                });
-            } while (!evaluate(condition) && safety < 100);
-            continue;
-        }
-
-        if (line.includes('=') && !line.startsWith('if') && !line.startsWith('for') && !line.startsWith('while')) {
-            const eqIdx = line.indexOf('=');
-            const name = line.substring(0, eqIdx).trim();
-            const value = line.substring(eqIdx + 1).trim();
-            if (name.includes('.')) {
-                const parts = name.split('.');
-                const tableName = parts[0];
-                const key = parts[1];
-                const table = tables[tableName] || variables[tableName] || localVars[tableName];
-                if (table && typeof table === 'object') {
-                    table[key] = evaluate(value);
-                }
-            } else if (name.includes('[')) {
-                const bracketMatch = name.match(/^(.+)\[(.+)\]$/);
-                if (bracketMatch) {
-                    const tableName = bracketMatch[1].trim();
-                    const key = evaluate(bracketMatch[2].trim());
-                    const table = tables[tableName] || variables[tableName] || localVars[tableName];
-                    if (table && typeof table === 'object') {
-                        table[key] = evaluate(value);
-                    }
-                }
-            } else {
-                if (localVars.hasOwnProperty(name)) {
-                    localVars[name] = evaluate(value);
-                } else {
-                    variables[name] = evaluate(value);
-                }
-            }
-            i++;
-            continue;
-        }
-
-        if (line.startsWith('print(')) {
-            const arg = line.substring(6, line.length - 1);
-            const result = evaluate(arg);
-            addOutput('output', result);
-            i++;
-            continue;
-        }
-
-        const funcCallMatch = line.match(/^(\w+)\s*\(([^)]*)\)$/);
-        if (funcCallMatch && functions[funcCallMatch[1]]) {
-            const funcName = funcCallMatch[1];
-            const args = funcCallMatch[2].split(',').map(a => evaluate(a.trim()));
-            const func = functions[funcName];
-            const savedVars = {...localVars};
-            func.params.forEach((p, idx) => {
-                localVars[p] = args[idx];
-            });
-            func.body.forEach(bline => {
-                const trimmed = bline.trim();
-                if (trimmed.startsWith('return ')) {
-                    const ret = evaluate(trimmed.substring(7));
-                    addOutput('output', ret);
-                } else if (trimmed.startsWith('print(')) {
-                    const arg = trimmed.substring(6, trimmed.length - 1);
-                    addOutput('output', evaluate(arg));
-                }
-            });
-            localVars = savedVars;
-            i++;
-            continue;
-        }
-
-        if (line.startsWith('type(')) {
-            const arg = line.substring(5, line.length - 1);
-            const val = evaluate(arg);
-            let typeName = typeof val;
-            if (val === null) typeName = 'nil';
-            if (Array.isArray(val) || (typeof val === 'object' && val !== null)) typeName = 'table';
-            if (typeof val === 'boolean') typeName = 'boolean';
-            addOutput('output', typeName);
-            i++;
-            continue;
-        }
-
-        if (line.startsWith('tostring(')) {
-            const arg = line.substring(9, line.length - 1);
-            addOutput('output', String(evaluate(arg)));
-            i++;
-            continue;
-        }
-
-        if (line.includes('string.')) {
-            const strMatch = line.match(/string\.(\w+)\(([^)]+)\)/);
-            if (strMatch) {
-                const func = strMatch[1];
-                const args = strMatch[2].split(',').map(a => evaluate(a.trim()));
-                let result;
-                if (func === 'upper') result = String(args[0]).toUpperCase();
-                else if (func === 'lower') result = String(args[0]).toLowerCase();
-                else if (func === 'gsub') result = String(args[0]).replace(new RegExp(args[1], 'g'), args[2]);
-                else if (func === 'sub') result = String(args[0]).substring(args[1] - 1, args[2]);
-                else if (func === 'len') result = String(args[0]).length;
-                else if (func === 'find') result = String(args[0]).indexOf(args[1]) + 1;
-                else if (func === 'format') {
-                    let fmt = args[0];
-                    for (let k = 1; k < args.length; k++) {
-                        fmt = fmt.replace(/%[sdxf%]/, args[k]);
-                    }
-                    result = fmt;
-                }
-                else if (func === 'match') result = String(args[0]).match(new RegExp(args[1]));
-                else if (func === 'gmatch') result = 'gmatch iterator';
-                else result = line;
-                if (line.startsWith('print(')) {
-                    addOutput('output', result);
-                }
-            }
-            i++;
-            continue;
-        }
-
-        if (line.includes('math.')) {
-            const mathMatch = line.match(/math\.(\w+)\(([^)]*)\)/);
-            if (mathMatch) {
-                const func = mathMatch[1];
-                const args = mathMatch[2] ? mathMatch[2].split(',').map(a => evaluate(a.trim())) : [];
-                let result;
-                if (func === 'sqrt') result = Math.sqrt(args[0]);
-                else if (func === 'random') result = args.length > 1 ? Math.floor(Math.random() * (args[1] - args[0] + 1)) + args[0] : Math.random();
-                else if (func === 'floor') result = Math.floor(args[0]);
-                else if (func === 'ceil') result = Math.ceil(args[0]);
-                else if (func === 'abs') result = Math.abs(args[0]);
-                else if (func === 'max') result = Math.max(...args);
-                else if (func === 'min') result = Math.min(...args);
-                else if (func === 'pi') result = Math.PI;
-                else if (func === 'sin') result = Math.sin(args[0]);
-                else if (func === 'cos') result = Math.cos(args[0]);
-                else if (func === 'tan') result = Math.tan(args[0]);
-                else if (func === 'rad') result = args[0] * Math.PI / 180;
-                else if (func === 'deg') result = args[0] * 180 / Math.PI;
-                else result = 'math.' + func;
-                if (line.startsWith('print(')) {
-                    addOutput('output', result);
-                }
-            } else if (line.includes('math.pi')) {
-                if (line.startsWith('print(')) {
-                    addOutput('output', Math.PI);
-                }
-            }
-            i++;
-            continue;
-        }
-
-        if (line.includes('table.')) {
-            const tableMatch = line.match(/table\.(\w+)\(([^)]+)\)/);
-            if (tableMatch) {
-                const func = tableMatch[1];
-                const args = tableMatch[2].split(',').map(a => evaluate(a.trim()));
-                let result;
-                if (func === 'concat') {
-                    const arr = args[0];
-                    const sep = args[1] || ', ';
-                    if (Array.isArray(arr)) result = arr.join(sep);
-                    else result = Object.values(arr).join(sep);
-                } else if (func === 'insert') {
-                    const arr = args[0];
-                    const val = args[1];
-                    if (Array.isArray(arr)) arr.push(val);
-                    result = arr;
-                } else if (func === 'remove') {
-                    const arr = args[0];
-                    const idx = args[1];
-                    if (Array.isArray(arr)) result = arr.splice(idx - 1, 1)[0];
-                } else if (func === 'sort') {
-                    const arr = args[0];
-                    if (Array.isArray(arr)) arr.sort((a, b) => a - b);
-                    result = arr;
-                } else {
-                    result = line;
-                }
-                if (line.startsWith('print(')) {
-                    addOutput('output', result);
-                }
-            }
-            i++;
-            continue;
-        }
-
-        i++;
-    }
-}
-</script>
-</body>
-</html>
+    const readableStrings = allStrings.filter(s => s.length >
