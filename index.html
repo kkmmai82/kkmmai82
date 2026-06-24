@@ -499,8 +499,175 @@ function xorDecrypt(str, key) {
     return result;
 }
 
-// Enhanced Lua deobfuscator
+// Enhanced Lua deobfuscator - supports LuaObfuscator.com
 function decryptLua(code) {
+    let result = { success: false, method: '', original: '', error: '' };
+    let working = code.trim();
+
+    // Helper: decode hex string like "48656C6C6F" -> "Hello"
+    function hexDecode(hex) {
+        let str = '';
+        for (let i = 0; i < hex.length; i += 2) {
+            str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+        }
+        return str;
+    }
+
+    // Helper: evaluate string.char sequences
+    function evalStringChar(str) {
+        // string.char(72) .. string.char(101) -> "He"
+        let result = str.replace(/string\.char\s*\(\s*(\d+)\s*\)/g, (match, num) => {
+            return '"' + String.fromCharCode(parseInt(num)) + '"';
+        });
+        // Handle concatenation: "H" .. "e" .. "l" -> "Hel"
+        let prev;
+        do {
+            prev = result;
+            result = result.replace(/(["'])([^"']*)\s*\.\.\s*(["'])([^"']*)/g, (match, q1, s1, q2, s2) => {
+                return q1 + s1 + s2 + q1;
+            });
+        } while (result !== prev);
+        return result;
+    }
+
+    // Helper: extract all string values from code
+    function extractStrings(code) {
+        const strings = [];
+        // Extract quoted strings
+        const quoteRegex = /["']([^"']+)["']/g;
+        let match;
+        while ((match = quoteRegex.exec(code)) !== null) {
+            strings.push(match[1]);
+        }
+        return strings;
+    }
+
+    // Method 1: LuaObfuscator.com pattern - look for the hex string at the end
+    // Pattern: v15("HEXSTRING",v9(),...)
+    const obfMatch = working.match(/v15\s*\(\s*["']([A-Fa-f0-9]+)["']\s*,\s*v9\(\)/);
+    if (obfMatch) {
+        const hexString = obfMatch[1];
+        try {
+            const decoded = hexDecode(hexString);
+            // The hex string contains the actual bytecode - try to extract readable parts
+            const readableParts = [];
+            let current = '';
+            for (let i = 0; i < decoded.length; i++) {
+                const char = decoded[i];
+                if (char.charCodeAt(0) >= 32 && char.charCodeAt(0) <= 126) {
+                    current += char;
+                } else {
+                    if (current.length > 3) readableParts.push(current);
+                    current = '';
+                }
+            }
+            if (current.length > 3) readableParts.push(current);
+
+            if (readableParts.length > 0) {
+                result.success = true;
+                result.method = 'LuaObfuscator.com (hex string extraction)';
+                result.original = 'الكود يستخدم LuaObfuscator.com\n\nالأجزاء المقروءة المستخرجة:\n' + readableParts.join('\n') + '\n\nالـ hex string كامل:\n' + hexString.substring(0, 200) + '...';
+                return result;
+            }
+        } catch(e) {}
+    }
+
+    // Method 2: Try to resolve all string.char and concatenations
+    let attempt = working;
+    // Multiple passes to resolve nested string.char
+    for (let pass = 0; pass < 5; pass++) {
+        attempt = evalStringChar(attempt);
+    }
+
+    // After resolving string.char, look for URLs or readable code
+    const urlMatch = attempt.match(/(https?:\/\/[^"\s\)]+)/);
+    if (urlMatch) {
+        result.success = true;
+        result.method = 'string.char + concatenation (URL extracted)';
+        result.original = 'الرابط المستخرج:\n' + urlMatch[1] + '\n\nالكود المفكوك:\n' + attempt.substring(0, 1000);
+        return result;
+    }
+
+    // Check if we got readable Lua code
+    if (attempt !== working && (attempt.includes('function') || attempt.includes('local') || attempt.includes('print') || attempt.includes('if'))) {
+        result.success = true;
+        result.method = 'string.char + concatenation';
+        result.original = attempt;
+        return result;
+    }
+
+    // Method 3: Look for loadstring with encoded content
+    const loadstringMatch = working.match(/loadstring\s*\(\s*["']([A-Za-z0-9+/=]+)["']\s*\)/);
+    if (loadstringMatch) {
+        const decoded = base64Decode(loadstringMatch[1]);
+        if (decoded) { result.success = true; result.method = 'loadstring + Base64'; result.original = decoded; return result; }
+    }
+
+    // Method 4: Base64 only
+    if (/^[A-Za-z0-9+/=]+$/.test(working) && working.length > 20) {
+        const decoded = base64Decode(working);
+        if (decoded && (decoded.includes('function') || decoded.includes('local') || decoded.includes('print'))) {
+            result.success = true; result.method = 'Base64 مباشر'; result.original = decoded; return result;
+        }
+    }
+
+    // Method 5: string.reverse
+    if (working.includes('string.reverse')) {
+        const reverseMatch = working.match(/string\.reverse\s*\(\s*["'](.+)["']\s*\)/);
+        if (reverseMatch) { result.success = true; result.method = 'string.reverse'; result.original = reverseMatch[1].split('').reverse().join(''); return result; }
+    }
+
+    // Method 6: Byte array
+    const byteMatch = working.match(/\{(\d+(?:,\s*\d+)*)\}/);
+    if (byteMatch && !working.includes('function')) {
+        const bytes = byteMatch[1].split(',').map(n => String.fromCharCode(parseInt(n.trim())));
+        const decoded = bytes.join('');
+        if (decoded.includes('function') || decoded.includes('local')) {
+            result.success = true; result.method = 'Byte Array'; result.original = decoded; return result;
+        }
+    }
+
+    // Method 7: XOR with common keys
+    const commonKeys = ['key', 'lua', 'script', 'obf', '123', 'abc', 'KEY', 'LUA'];
+    for (let key of commonKeys) {
+        try {
+            const decrypted = xorDecrypt(working, key);
+            if (decrypted.includes('function') || decrypted.includes('local') || decrypted.includes('print')) {
+                result.success = true; result.method = 'XOR (key: ' + key + ')'; result.original = decrypted; return result;
+            }
+        } catch(e) {}
+    }
+
+    // Method 8: URL encoded
+    try {
+        const urlDecoded = decodeURIComponent(working);
+        if (urlDecoded !== working && (urlDecoded.includes('function') || urlDecoded.includes('local'))) {
+            result.success = true; result.method = 'URL Encoding'; result.original = urlDecoded; return result;
+        }
+    } catch(e) {}
+
+    // Method 9: Hex encoded
+    if (/^[0-9a-fA-F\s]+$/.test(working) && working.length > 10) {
+        try {
+            const hex = working.replace(/\s/g, '');
+            let decoded = '';
+            for (let i = 0; i < hex.length; i += 2) {
+                decoded += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+            }
+            if (decoded.includes('function') || decoded.includes('local')) {
+                result.success = true; result.method = 'Hex Encoding'; result.original = decoded; return result;
+            }
+        } catch(e) {}
+    }
+
+    // Method 10: Already readable
+    if (working.includes('function') || working.includes('local') || working.includes('print') || working.includes('if') || working.includes('for')) {
+        result.success = true; result.method = 'كود عادي (غير مشفر)'; result.original = code; return result;
+    }
+
+    result.error = 'هذا الكود يستخدم LuaObfuscator.com (obfuscation قوي).\n\nالكود يحتوي على hex string مشفر.\n\nللفك اليدوي:\n1. ابحث عن الرابط في الكود\n2. أو افتح الرابط مباشرة إذا كان موجود\n3. LuaObfuscator.com يستخدم تشفير مخصص صعب الفك';
+    return result;
+}
     let result = { success: false, method: '', original: '', error: '' };
     let working = code.trim();
 
