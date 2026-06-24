@@ -99,7 +99,16 @@
         .tab.active { color: #fbbf24; border-bottom-color: #fbbf24; }
         .tab-content { display: none; flex: 1; flex-direction: column; }
         .tab-content.active { display: flex; }
+
+        .decrypt-status.warning { background: #451a03; color: #fbbf24; border: 1px solid #fbbf24; }
+        .decrypt-options { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        .decrypt-option { background: #334155; border: 1px solid #475569; padding: 4px 10px; border-radius: 4px; font-size: 11px; color: #94a3b8; cursor: pointer; }
+        .decrypt-option:hover { background: #475569; color: #e2e8f0; }
+        .decrypt-option.active { background: #0ea5e9; color: white; border-color: #38bdf8; }
+        .decrypt-key-input { background: #0f172a; border: 1px solid #475569; color: #e2e8f0; padding: 6px 10px; border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 12px; width: 100%; margin-bottom: 8px; direction: ltr; }
+        .decrypt-key-input:focus { outline: none; border-color: #38bdf8; }
 </style>
+<base target="_blank">
 <base target="_blank">
 </head>
 <body>
@@ -160,9 +169,9 @@ print("مرحباً بك في Lua!")</textarea>
                 </div>
                 <div class="output-panel">
                     <div class="tabs">
-                        <div class="tab active" onclick="switchTab('output')">📤 النتائج</div>
-                        <div class="tab" onclick="switchTab('visual')">🔍 تصور</div>
-                        <div class="tab" onclick="switchTab('decrypt')">🔓 فك التشفير</div>
+                        <div class="tab active" onclick="switchTab('output', this)">📤 النتائج</div>
+                        <div class="tab" onclick="switchTab('visual', this)">🔍 تصور</div>
+                        <div class="tab" onclick="switchTab('decrypt', this)">🔓 فك التشفير</div>
                     </div>
                     <div class="tab-content active" id="tab-output">
                         <div class="output-content" id="output">
@@ -473,11 +482,12 @@ const decryptOutput = document.getElementById('decryptOutput');
 
 // Tab switching
 let currentTab = 'output';
-function switchTab(tab) {
+function switchTab(tab, clickedEl) {
     currentTab = tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
+    if (clickedEl) clickedEl.classList.add('active');
+    else if (typeof event !== 'undefined' && event.target) event.target.classList.add('active');
     document.getElementById('tab-' + tab).classList.add('active');
 }
 
@@ -500,343 +510,429 @@ function xorDecrypt(str, key) {
 }
 
 // Enhanced Lua deobfuscator - supports LuaObfuscator.com
-function decryptLua(code) {
-    let result = { success: false, method: '', original: '', error: '' };
+
+// Hex decoder
+function hexDecode(hex) {
+    let str = '';
+    hex = hex.replace(/\s/g, '');
+    for (let i = 0; i < hex.length; i += 2) {
+        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    }
+    return str;
+}
+
+// Evaluate string.char sequences
+function evalStringChar(str) {
+    str = str.replace(/string\.char\s*\(\s*(\d+(?:\s*,\s*\d+)*)\s*\)/g, (match, nums) => {
+        const chars = nums.split(',').map(n => String.fromCharCode(parseInt(n.trim())));
+        return '"' + chars.join('') + '"';
+    });
+    str = str.replace(/string\.char\s*\(\s*(\d+)\s*\)/g, (match, num) => {
+        return '"' + String.fromCharCode(parseInt(num)) + '"';
+    });
+    return str;
+}
+
+// Evaluate string concatenation
+function evalConcat(str) {
+    let prev;
+    let maxIterations = 100;
+    let iterations = 0;
+    do {
+        prev = str;
+        str = str.replace(/(["'])([^"']*)\1\s*\.\.\s*(["'])([^"']*)\3/g, (match, q1, s1, q2, s2) => {
+            return q1 + s1 + s2 + q1;
+        });
+        iterations++;
+    } while (str !== prev && iterations < maxIterations);
+    return str;
+}
+
+// Extract all string literals from code
+function extractStrings(code) {
+    const strings = [];
+    const patterns = [
+        /"((?:[^"\\]|\\.)*)"/g,
+        /'((?:[^'\\]|\\.)*)'/g,
+        /\[\[([\s\S]*?)\]\]/g
+    ];
+    patterns.forEach(regex => {
+        let match;
+        while ((match = regex.exec(code)) !== null) {
+            strings.push(match[1]);
+        }
+    });
+    return strings;
+}
+
+function decryptLua(code, userKey) {
+    let result = { success: false, method: '', original: '', error: '', details: [] };
     let working = code.trim();
 
-    // Helper: decode hex string like "48656C6C6F" -> "Hello"
-    function hexDecode(hex) {
-        let str = '';
-        for (let i = 0; i < hex.length; i += 2) {
-            str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-        }
-        return str;
-    }
-
-    // Helper: evaluate string.char sequences
-    function evalStringChar(str) {
-        // string.char(72) .. string.char(101) -> "He"
-        let result = str.replace(/string\.char\s*\(\s*(\d+)\s*\)/g, (match, num) => {
-            return '"' + String.fromCharCode(parseInt(num)) + '"';
-        });
-        // Handle concatenation: "H" .. "e" .. "l" -> "Hel"
-        let prev;
-        do {
-            prev = result;
-            result = result.replace(/(["'])([^"']*)\s*\.\.\s*(["'])([^"']*)/g, (match, q1, s1, q2, s2) => {
-                return q1 + s1 + s2 + q1;
-            });
-        } while (result !== prev);
+    if (!working) {
+        result.error = 'الكود فارغ';
         return result;
     }
 
-    // Helper: extract all string values from code
-    function extractStrings(code) {
-        const strings = [];
-        // Extract quoted strings
-        const quoteRegex = /["']([^"']+)["']/g;
-        let match;
-        while ((match = quoteRegex.exec(code)) !== null) {
-            strings.push(match[1]);
-        }
-        return strings;
+    // Helper: add detail
+    function addDetail(method, content) {
+        result.details.push({ method, content: content.substring(0, 2000) });
     }
 
-    // Method 1: LuaObfuscator.com pattern - look for the hex string at the end
-    // Pattern: v15("HEXSTRING",v9(),...)
-    const obfMatch = working.match(/v15\s*\(\s*["']([A-Fa-f0-9]+)["']\s*,\s*v9\(\)/);
-    if (obfMatch) {
-        const hexString = obfMatch[1];
-        try {
-            const decoded = hexDecode(hexString);
-            // The hex string contains the actual bytecode - try to extract readable parts
-            const readableParts = [];
-            let current = '';
-            for (let i = 0; i < decoded.length; i++) {
-                const char = decoded[i];
-                if (char.charCodeAt(0) >= 32 && char.charCodeAt(0) <= 126) {
-                    current += char;
-                } else {
-                    if (current.length > 3) readableParts.push(current);
-                    current = '';
-                }
-            }
-            if (current.length > 3) readableParts.push(current);
+    // ============================================
+    // PASS 1: Resolve string.char and concatenations
+    // ============================================
+    let attempt = working;
+    let prev;
+    let passCount = 0;
+    do {
+        prev = attempt;
+        attempt = evalStringChar(attempt);
+        attempt = evalConcat(attempt);
+        passCount++;
+    } while (attempt !== prev && passCount < 10);
 
-            if (readableParts.length > 0) {
+    if (attempt !== working) {
+        addDetail('string.char + concatenation', attempt);
+        const hasLuaSyntax = /(\bfunction\b|\blocal\b|\bprint\b|\bif\b|\bfor\b|\bwhile\b|\bend\b)/.test(attempt);
+        const hasUrl = /https?:\/\/[^\s"')]+/.test(attempt);
+        if (hasLuaSyntax || hasUrl) {
+            result.success = true;
+            result.method = 'string.char + concatenation';
+            result.original = attempt;
+            return result;
+        }
+    }
+
+    // ============================================
+    // PASS 2: LuaObfuscator.com - Hex string pattern
+    // ============================================
+    const obfPatterns = [
+        /v\d+\s*\(\s*["']([A-Fa-f0-9]{100,})["']\s*,\s*v\d+\s*\(\s*\)/,
+        /["']([A-Fa-f0-9]{200,})["']/,
+        /load\s*\(\s*["']([A-Fa-f0-9]+)["']/,
+        /loadstring\s*\(\s*["']([A-Fa-f0-9]+)["']/
+    ];
+
+    for (let pattern of obfPatterns) {
+        const match = working.match(pattern);
+        if (match) {
+            const hexString = match[1];
+            try {
+                const decoded = hexDecode(hexString);
+                if (decoded && decoded.length > 0) {
+                    const readableParts = [];
+                    let current = '';
+                    for (let i = 0; i < decoded.length; i++) {
+                        const char = decoded[i];
+                        if (char.charCodeAt(0) >= 32 && char.charCodeAt(0) <= 126) {
+                            current += char;
+                        } else {
+                            if (current.length > 3) readableParts.push(current);
+                            current = '';
+                        }
+                    }
+                    if (current.length > 3) readableParts.push(current);
+                    if (readableParts.length > 0) {
+                        result.success = true;
+                        result.method = 'LuaObfuscator.com (hex extraction)';
+                        result.original = '=== LuaObfuscator.com Obfuscation ===\n\n' +
+                            'الكود يستخدم تشفير LuaObfuscator.com\n\n' +
+                            '=== الأجزاء المقروءة المستخرجة ===\n' +
+                            readableParts.join('\n---\n') +
+                            '\n\n=== معلومات تقنية ===\n' +
+                            'طول الـ hex: ' + hexString.length + ' حرف\n' +
+                            'الطول بعد فك الـ hex: ' + decoded.length + ' بايت';
+                        return result;
+                    }
+                }
+            } catch(e) {}
+        }
+    }
+
+    // ============================================
+    // PASS 3: loadstring / load with base64
+    // ============================================
+    const loadstringPatterns = [
+        /loadstring\s*\(\s*["']([A-Za-z0-9+/=]{20,})["']\s*\)/,
+        /load\s*\(\s*["']([A-Za-z0-9+/=]{20,})["']\s*\)/,
+        /loadstring\s*\(\s*["']([A-Za-z0-9+/=]{20,})["']/
+    ];
+
+    for (let pattern of loadstringPatterns) {
+        const match = working.match(pattern);
+        if (match) {
+            const decoded = base64Decode(match[1]);
+            if (decoded && decoded.length > 0) {
                 result.success = true;
-                result.method = 'LuaObfuscator.com (hex string extraction)';
-                result.original = 'الكود يستخدم LuaObfuscator.com\n\nالأجزاء المقروءة المستخرجة:\n' + readableParts.join('\n') + '\n\nالـ hex string كامل:\n' + hexString.substring(0, 200) + '...';
+                result.method = 'loadstring + Base64';
+                result.original = decoded;
+                return result;
+            }
+        }
+    }
+
+    // ============================================
+    // PASS 4: Direct Base64
+    // ============================================
+    if (/^[A-Za-z0-9+/=\s]+$/.test(working) && working.replace(/\s/g, '').length > 20) {
+        const clean = working.replace(/\s/g, '');
+        const decoded = base64Decode(clean);
+        if (decoded && /(\bfunction\b|\blocal\b|\bprint\b|\bend\b)/.test(decoded)) {
+            result.success = true;
+            result.method = 'Base64 مباشر';
+            result.original = decoded;
+            return result;
+        }
+    }
+
+    // ============================================
+    // PASS 5: string.reverse
+    // ============================================
+    const reversePatterns = [
+        /string\.reverse\s*\(\s*["'](.+)["']\s*\)/,
+        /string\.reverse\s*\(\s*["']([^"']+)["']/
+    ];
+
+    for (let pattern of reversePatterns) {
+        const match = working.match(pattern);
+        if (match) {
+            result.success = true;
+            result.method = 'string.reverse';
+            result.original = match[1].split('').reverse().join('');
+            return result;
+        }
+    }
+
+    // ============================================
+    // PASS 6: Byte array {72, 101, ...}
+    // ============================================
+    const bytePatterns = [
+        /\{\s*(\d+(?:\s*,\s*\d+){5,})\s*\}/,
+        /=\s*\{\s*(\d+(?:\s*,\s*\d+){5,})\s*\}/
+    ];
+
+    for (let pattern of bytePatterns) {
+        const match = working.match(pattern);
+        if (match) {
+            try {
+                const bytes = match[1].split(',').map(n => parseInt(n.trim()));
+                const decoded = bytes.map(b => String.fromCharCode(b)).join('');
+                if (/(\bfunction\b|\blocal\b|\bprint\b|\bend\b)/.test(decoded)) {
+                    result.success = true;
+                    result.method = 'Byte Array';
+                    result.original = decoded;
+                    return result;
+                }
+            } catch(e) {}
+        }
+    }
+
+    // ============================================
+    // PASS 7: XOR with common keys + user key
+    // ============================================
+    const commonKeys = ['key', 'lua', 'script', 'obf', '123', 'abc', 'KEY', 'LUA', 'obfuscator', 'moonsec'];
+    if (userKey) commonKeys.unshift(userKey);
+
+    for (let key of commonKeys) {
+        try {
+            const decrypted = xorDecrypt(working, key);
+            if (/(\bfunction\b|\blocal\b|\bprint\b|\bend\b)/.test(decrypted) && decrypted !== working) {
+                result.success = true;
+                result.method = 'XOR (key: ' + key + ')';
+                result.original = decrypted;
                 return result;
             }
         } catch(e) {}
     }
 
-    // Method 2: Try to resolve all string.char and concatenations
-    let attempt = working;
-    // Multiple passes to resolve nested string.char
-    for (let pass = 0; pass < 5; pass++) {
-        attempt = evalStringChar(attempt);
-    }
-
-    // After resolving string.char, look for URLs or readable code
-    const urlMatch = attempt.match(/(https?:\/\/[^"\s\)]+)/);
-    if (urlMatch) {
-        result.success = true;
-        result.method = 'string.char + concatenation (URL extracted)';
-        result.original = 'الرابط المستخرج:\n' + urlMatch[1] + '\n\nالكود المفكوك:\n' + attempt.substring(0, 1000);
-        return result;
-    }
-
-    // Check if we got readable Lua code
-    if (attempt !== working && (attempt.includes('function') || attempt.includes('local') || attempt.includes('print') || attempt.includes('if'))) {
-        result.success = true;
-        result.method = 'string.char + concatenation';
-        result.original = attempt;
-        return result;
-    }
-
-    // Method 3: Look for loadstring with encoded content
-    const loadstringMatch = working.match(/loadstring\s*\(\s*["']([A-Za-z0-9+/=]+)["']\s*\)/);
-    if (loadstringMatch) {
-        const decoded = base64Decode(loadstringMatch[1]);
-        if (decoded) { result.success = true; result.method = 'loadstring + Base64'; result.original = decoded; return result; }
-    }
-
-    // Method 4: Base64 only
-    if (/^[A-Za-z0-9+/=]+$/.test(working) && working.length > 20) {
-        const decoded = base64Decode(working);
-        if (decoded && (decoded.includes('function') || decoded.includes('local') || decoded.includes('print'))) {
-            result.success = true; result.method = 'Base64 مباشر'; result.original = decoded; return result;
-        }
-    }
-
-    // Method 5: string.reverse
-    if (working.includes('string.reverse')) {
-        const reverseMatch = working.match(/string\.reverse\s*\(\s*["'](.+)["']\s*\)/);
-        if (reverseMatch) { result.success = true; result.method = 'string.reverse'; result.original = reverseMatch[1].split('').reverse().join(''); return result; }
-    }
-
-    // Method 6: Byte array
-    const byteMatch = working.match(/\{(\d+(?:,\s*\d+)*)\}/);
-    if (byteMatch && !working.includes('function')) {
-        const bytes = byteMatch[1].split(',').map(n => String.fromCharCode(parseInt(n.trim())));
-        const decoded = bytes.join('');
-        if (decoded.includes('function') || decoded.includes('local')) {
-            result.success = true; result.method = 'Byte Array'; result.original = decoded; return result;
-        }
-    }
-
-    // Method 7: XOR with common keys
-    const commonKeys = ['key', 'lua', 'script', 'obf', '123', 'abc', 'KEY', 'LUA'];
-    for (let key of commonKeys) {
-        try {
-            const decrypted = xorDecrypt(working, key);
-            if (decrypted.includes('function') || decrypted.includes('local') || decrypted.includes('print')) {
-                result.success = true; result.method = 'XOR (key: ' + key + ')'; result.original = decrypted; return result;
-            }
-        } catch(e) {}
-    }
-
-    // Method 8: URL encoded
+    // ============================================
+    // PASS 8: URL encoded
+    // ============================================
     try {
         const urlDecoded = decodeURIComponent(working);
-        if (urlDecoded !== working && (urlDecoded.includes('function') || urlDecoded.includes('local'))) {
-            result.success = true; result.method = 'URL Encoding'; result.original = urlDecoded; return result;
+        if (urlDecoded !== working && /(\bfunction\b|\blocal\b|\bprint\b|\bend\b)/.test(urlDecoded)) {
+            result.success = true;
+            result.method = 'URL Encoding';
+            result.original = urlDecoded;
+            return result;
         }
     } catch(e) {}
 
-    // Method 9: Hex encoded
-    if (/^[0-9a-fA-F\s]+$/.test(working) && working.length > 10) {
+    // ============================================
+    // PASS 9: Hex encoded (full file)
+    // ============================================
+    if (/^[0-9a-fA-F\s]+$/.test(working) && working.replace(/\s/g, '').length > 20) {
         try {
-            const hex = working.replace(/\s/g, '');
-            let decoded = '';
-            for (let i = 0; i < hex.length; i += 2) {
-                decoded += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-            }
-            if (decoded.includes('function') || decoded.includes('local')) {
-                result.success = true; result.method = 'Hex Encoding'; result.original = decoded; return result;
+            const decoded = hexDecode(working);
+            if (/(\bfunction\b|\blocal\b|\bprint\b|\bend\b)/.test(decoded)) {
+                result.success = true;
+                result.method = 'Hex Encoding';
+                result.original = decoded;
+                return result;
             }
         } catch(e) {}
     }
 
-    // Method 10: Already readable
-    if (working.includes('function') || working.includes('local') || working.includes('print') || working.includes('if') || working.includes('for')) {
-        result.success = true; result.method = 'كود عادي (غير مشفر)'; result.original = code; return result;
-    }
-
-    result.error = 'هذا الكود يستخدم LuaObfuscator.com (obfuscation قوي).\n\nالكود يحتوي على hex string مشفر.\n\nللفك اليدوي:\n1. ابحث عن الرابط في الكود\n2. أو افتح الرابط مباشرة إذا كان موجود\n3. LuaObfuscator.com يستخدم تشفير مخصص صعب الفك';
-    return result;
-}
-    let result = { success: false, method: '', original: '', error: '' };
-    let working = code.trim();
-
-    // Helper: evaluate string concatenation
-    function evalConcat(str) {
-        // Replace string.char(X) with actual char
-        str = str.replace(/string\.char\s*\(\s*(\d+)\s*\)/g, (match, num) => {
-            return '"' + String.fromCharCode(parseInt(num)) + '"';
-        });
-        // Replace "a" .. "b" with "ab"
-        let prev;
-        do {
-            prev = str;
-            str = str.replace(/(["'])([^"']*)\s*\.\.\s*(["'])([^"']*)/g, (match, q1, s1, q2, s2) => {
-                return q1 + s1 + s2 + q1;
-            });
-        } while (str !== prev);
-        return str;
-    }
-
-    // Helper: extract string values from concatenated string.char
-    function extractStringChar(code) {
-        let result = code;
-        // Find all string.char sequences and replace them
-        const charPattern = /string\.char\s*\(\s*(\d+(?:\s*,\s*\d+)*)\s*\)/g;
-        result = result.replace(charPattern, (match, nums) => {
-            const chars = nums.split(',').map(n => String.fromCharCode(parseInt(n.trim())));
-            return '"' + chars.join('') + '"';
-        });
+    // ============================================
+    // PASS 10: Already readable or partially readable
+    // ============================================
+    if (/(\bfunction\b|\blocal\b|\bprint\b|\bif\b|\bfor\b|\bwhile\b|\bend\b)/.test(working)) {
+        result.success = true;
+        result.method = 'كود عادي (غير مشفر أو جزئياً)';
+        result.original = working;
         return result;
     }
 
-    // Helper: resolve variable concatenations
-    function resolveVars(code) {
-        let result = code;
-        // Find local var = "a" .. "b" patterns and inline them
-        const varPattern = /local\s+(\w+)\s*=\s*([^
-]+)/g;
-        let match;
-        const vars = {};
-        while ((match = varPattern.exec(code)) !== null) {
-            const varName = match[1];
-            let varValue = match[2].trim();
-            varValue = evalConcat(varValue);
-            // Extract string value
-            const strMatch = varValue.match(/^["'](.+)["']$/);
-            if (strMatch) {
-                vars[varName] = strMatch[1];
-            }
-        }
-        // Replace variable usages
-        for (let v in vars) {
-            const regex = new RegExp('\b' + v + '\b', 'g');
-            result = result.replace(regex, '"' + vars[v] + '"');
-        }
-        return result;
+    // ============================================
+    // PASS 11: Extract any readable strings
+    // ============================================
+    const allStrings = extractStrings(working);
+    const readableStrings = allStrings.filter(s => s.length > 3 && /^[\x20-\x7E\u0600-\u06FF]+$/.test(s));
+
+    if (readableStrings.length > 0) {
+        result.error = 'لم يتم التعرف على طريقة التشفير المحددة.\n\n' +
+            'الكود يستخدم obfuscation متقدم (ربما LuaObfuscator.com أو MoonSec).\n\n' +
+            '=== النصوص المقروءة المستخرجة ===\n' +
+            readableStrings.slice(0, 20).join('\n') +
+            '\n\n=== نصائح للفك اليدوي ===\n' +
+            '1. ابحث عن دالة التشفير الرئيسية في الكود\n' +
+            '2. جرب نسخ الـ hex string أو البيانات المشفرة وفكها\n' +
+            '3. استخدم أدوات خارجية مثل LuaDec أو unluac للـ bytecode\n' +
+            '4. جرب مفتاح XOR مخصص في الحقل أدناه';
+    } else {
+        result.error = 'لم يتم التعرف على طريقة التشفير. الكود يستخدم obfuscation متقدم جداً.\n\n' +
+            'الكود قد يكون:\n' +
+            '- LuaObfuscator.com (تشفير قوي)\n' +
+            '- MoonSec أو Synapse Xen\n' +
+            '- Bytecode مشفر\n\n' +
+            'جرب استخدام مفتاح XOR مخصص أو أداة خارجية.';
     }
 
-    // Method 1: Try to resolve string.char + concatenation obfuscation
-    let attempt = working;
-    attempt = extractStringChar(attempt);
-    attempt = evalConcat(attempt);
-    attempt = resolveVars(attempt);
-    attempt = evalConcat(attempt); // Second pass after var resolution
-
-    // Check if we got a readable URL or code
-    if (attempt.includes('http') || attempt.includes('function') || attempt.includes('local') || attempt.includes('print')) {
-        // Clean up the result
-        let cleaned = attempt;
-        // Extract URL if present
-        const urlMatch = cleaned.match(/(https?:\/\/[^"\s\)]+)/);
-        if (urlMatch) {
-            result.success = true;
-            result.method = 'string.char + concatenation (استخراج الرابط)';
-            result.original = 'الرابط المستخرج:
-' + urlMatch[1] + '
-
-الكود المفكوك:
-' + cleaned;
-            return result;
-        }
-        if (cleaned !== working && cleaned.length > 10) {
-            result.success = true;
-            result.method = 'string.char + concatenation';
-            result.original = cleaned;
-            return result;
-        }
-    }
-
-    // Method 2: loadstring with base64
-    const loadstringMatch = working.match(/loadstring\s*\(\s*['"]([A-Za-z0-9+/=]+)['"]\s*\)/);
-    if (loadstringMatch) {
-        const decoded = base64Decode(loadstringMatch[1]);
-        if (decoded) { result.success = true; result.method = 'loadstring + Base64'; result.original = decoded; return result; }
-    }
-
-    // Method 3: load with base64
-    const loadMatch = working.match(/load\s*\(\s*['"]([A-Za-z0-9+/=]+)['"]\s*\)/);
-    if (loadMatch) {
-        const decoded = base64Decode(loadMatch[1]);
-        if (decoded) { result.success = true; result.method = 'load + Base64'; result.original = decoded; return result; }
-    }
-
-    // Method 4: Base64 only
-    if (/^[A-Za-z0-9+/=]+$/.test(working) && working.length > 20) {
-        const decoded = base64Decode(working);
-        if (decoded && (decoded.includes('function') || decoded.includes('local') || decoded.includes('print'))) {
-            result.success = true; result.method = 'Base64 مباشر'; result.original = decoded; return result;
-        }
-    }
-
-    // Method 5: string.reverse
-    if (working.includes('string.reverse')) {
-        const reverseMatch = working.match(/string\.reverse\s*\(\s*['"](.+)['"]\s*\)/);
-        if (reverseMatch) { result.success = true; result.method = 'string.reverse'; result.original = reverseMatch[1].split('').reverse().join(''); return result; }
-    }
-
-    // Method 6: Byte array
-    const byteMatch = working.match(/\{(\d+(?:,\s*\d+)*)\}/);
-    if (byteMatch && !working.includes('function')) {
-        const bytes = byteMatch[1].split(',').map(n => String.fromCharCode(parseInt(n.trim())));
-        const decoded = bytes.join('');
-        if (decoded.includes('function') || decoded.includes('local')) {
-            result.success = true; result.method = 'Byte Array'; result.original = decoded; return result;
-        }
-    }
-
-    // Method 7: XOR with common keys
-    const commonKeys = ['key', 'lua', 'script', 'obf', '123', 'abc', 'KEY', 'LUA'];
-    for (let key of commonKeys) {
-        try {
-            const decrypted = xorDecrypt(working, key);
-            if (decrypted.includes('function') || decrypted.includes('local') || decrypted.includes('print')) {
-                result.success = true; result.method = 'XOR (key: ' + key + ')'; result.original = decrypted; return result;
-            }
-        } catch(e) {}
-    }
-
-    // Method 8: URL encoded
-    try {
-        const urlDecoded = decodeURIComponent(working);
-        if (urlDecoded !== working && (urlDecoded.includes('function') || urlDecoded.includes('local'))) {
-            result.success = true; result.method = 'URL Encoding'; result.original = urlDecoded; return result;
-        }
-    } catch(e) {}
-
-    // Method 9: Hex encoded
-    if (/^[0-9a-fA-F\s]+$/.test(working) && working.length > 10) {
-        try {
-            const hex = working.replace(/\s/g, '');
-            let decoded = '';
-            for (let i = 0; i < hex.length; i += 2) {
-                decoded += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-            }
-            if (decoded.includes('function') || decoded.includes('local')) {
-                result.success = true; result.method = 'Hex Encoding'; result.original = decoded; return result;
-            }
-        } catch(e) {}
-    }
-
-    // Method 10: Already readable
-    if (working.includes('function') || working.includes('local') || working.includes('print') || working.includes('if') || working.includes('for')) {
-        result.success = true; result.method = 'كود عادي (غير مشفر)'; result.original = code; return result;
-    }
-
-    result.error = 'لم يتم التعرف على طريقة التشفير. الكود يستخدم obfuscation متقدم. جرب فتح الرابط يدوياً إذا كان موجود.';
     return result;
 }
 
+function decryptCode() {
+    const code = codeEditor.value.trim();
+    if (!code) {
+        decryptOutput.innerHTML = '<div class="decrypt-status error">❌ الصق كود مشفر أولاً</div>';
+        switchTab('decrypt', null);
+        return;
+    }
+
+    switchTab('decrypt', null);
+    decryptOutput.innerHTML = 
+        '<div class="decrypt-status info">⏳ جاري فك التشفير...</div>' +
+        '<div style="margin-top:10px;">' +
+        '<input type="text" class="decrypt-key-input" id="decryptKey" placeholder="مفتاح XOR اختياري..." />' +
+        '</div>';
+
+    setTimeout(() => {
+        const userKey = document.getElementById('decryptKey')?.value || '';
+        const result = decryptLua(code, userKey);
+
+        if (result.success) {
+            let html = '<div class="decrypt-status success">✅ تم فك التشفير! الطريقة: ' + escapeHtml(result.method) + '</div>';
+
+            if (result.details && result.details.length > 1) {
+                html += '<div style="margin-bottom:8px;">';
+                result.details.forEach((d, i) => {
+                    html += '<div class="decrypt-option" onclick="showDetail(' + i + ')">' + escapeHtml(d.method) + '</div>';
+                });
+                html += '</div>';
+            }
+
+            html += '<div class="decrypt-result">' + escapeHtml(result.original) + '</div>';
+            html += '<div style="display:flex;gap:8px;margin-top:8px;">';
+            html += '<button class="copy-btn" onclick="copyDecrypted(this)">📋 نسخ الكود</button>';
+            html += '<button class="copy-btn" style="background:#22c55e;" onclick="useDecrypted()">▶️ تشغيل</button>';
+            html += '</div>';
+
+            decryptOutput.innerHTML = html;
+            window.decryptedCode = result.original;
+            window.decryptDetails = result.details;
+        } else {
+            let html = '<div class="decrypt-status error">❌ فشل فك التشفير</div>';
+            html += '<div class="decrypt-result" style="color:#fbbf24;">' + escapeHtml(result.error) + '</div>';
+            html += '<div style="margin-top:10px;">';
+            html += '<input type="text" class="decrypt-key-input" id="decryptKey2" placeholder="جرب مفتاح XOR مخصص..." />';
+            html += '<button class="copy-btn" style="margin-top:8px;" onclick="retryDecrypt()">🔄 إعادة المحاولة</button>';
+            html += '</div>';
+            decryptOutput.innerHTML = html;
+        }
+    }, 500);
+}
+
+function retryDecrypt() {
+    const code = codeEditor.value.trim();
+    const key = document.getElementById('decryptKey2')?.value || '';
+    if (key) {
+        const result = decryptLua(code, key);
+        if (result.success) {
+            let html = '<div class="decrypt-status success">✅ تم فك التشفير بالمفتاح! الطريقة: ' + escapeHtml(result.method) + '</div>';
+            html += '<div class="decrypt-result">' + escapeHtml(result.original) + '</div>';
+            html += '<div style="display:flex;gap:8px;margin-top:8px;">';
+            html += '<button class="copy-btn" onclick="copyDecrypted(this)">📋 نسخ الكود</button>';
+            html += '<button class="copy-btn" style="background:#22c55e;" onclick="useDecrypted()">▶️ تشغيل</button>';
+            html += '</div>';
+            decryptOutput.innerHTML = html;
+            window.decryptedCode = result.original;
+        } else {
+            decryptOutput.innerHTML = '<div class="decrypt-status error">❌ فشل أيضاً بالمفتاح المقدم</div>' +
+                '<div class="decrypt-result" style="color:#fbbf24;">' + escapeHtml(result.error) + '</div>';
+        }
+    }
+}
+
+function showDetail(index) {
+    if (window.decryptDetails && window.decryptDetails[index]) {
+        const detail = window.decryptDetails[index];
+        alert('الطريقة: ' + detail.method + '\n\n' + detail.content.substring(0, 500));
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function copyDecrypted(btn) {
+    if (window.decryptedCode) {
+        navigator.clipboard.writeText(window.decryptedCode).then(() => {
+            if (!btn && typeof event !== 'undefined') btn = event.target;
+            if (btn) {
+                const originalText = btn.textContent;
+                btn.textContent = '✅ تم النسخ!';
+                btn.classList.add('copied');
+                setTimeout(() => { 
+                    btn.textContent = originalText; 
+                    btn.classList.remove('copied'); 
+                }, 2000);
+            }
+        }).catch(err => {
+            const textarea = document.createElement('textarea');
+            textarea.value = window.decryptedCode;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            if (!btn && typeof event !== 'undefined') btn = event.target;
+            if (btn) {
+                btn.textContent = '✅ تم النسخ!';
+                setTimeout(() => btn.textContent = '📋 نسخ الكود', 2000);
+            }
+        });
+    }
+}
+
+function useDecrypted() {
+    if (window.decryptedCode) {
+        codeEditor.value = window.decryptedCode;
+        switchTab('output', null);
+        runCode();
+    }
+}
 function decryptCode() {
     const code = codeEditor.value.trim();
     if (!code) {
@@ -852,7 +948,7 @@ function decryptCode() {
         if (result.success) {
             let html = '<div class="decrypt-status success">✅ تم فك التشفير! الطريقة: ' + result.method + '</div>';
             html += '<div class="decrypt-result">' + escapeHtml(result.original) + '</div>';
-            html += '<button class="copy-btn" onclick="copyDecrypted()">📋 نسخ الكود</button>';
+            html += '<button class="copy-btn" onclick="copyDecrypted(this)">📋 نسخ الكود</button>';
             html += '<button class="copy-btn" style="background:#22c55e;margin-right:8px;" onclick="useDecrypted()">▶️ تشغيل</button>';
             decryptOutput.innerHTML = html;
             window.decryptedCode = result.original;
@@ -868,13 +964,15 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function copyDecrypted() {
+function copyDecrypted(btn) {
     if (window.decryptedCode) {
         navigator.clipboard.writeText(window.decryptedCode).then(() => {
-            const btn = event.target;
-            btn.textContent = '✅ تم النسخ!';
-            btn.classList.add('copied');
-            setTimeout(() => { btn.textContent = '📋 نسخ الكود'; btn.classList.remove('copied'); }, 2000);
+            if (!btn && typeof event !== 'undefined') btn = event.target;
+            if (btn) {
+                btn.textContent = '✅ تم النسخ!';
+                btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = '📋 نسخ الكود'; btn.classList.remove('copied'); }, 2000);
+            }
         });
     }
 }
